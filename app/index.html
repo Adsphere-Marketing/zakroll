@@ -1051,7 +1051,7 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
   const VIEW_KEY = "clapZak.vue", BUB_KEY = "clapZak.bulles";
   function readPref(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (_) { return null; } }
   function writePref(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
-  let viewMode = readPref(VIEW_KEY) === "texte" ? "texte" : "cartes";
+  let viewMode = readPref(VIEW_KEY) === "cartes" ? "cartes" : "texte";
   let bub = (() => { const o = readPref(BUB_KEY); return o && typeof o === "object" && !Array.isArray(o) ? o : {}; })();
 
   // Ordre de lecture : les hooks, puis le body, puis le CTA.
@@ -1194,7 +1194,7 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
       `<p class="plab">${esc(itemLabel(it))}</p><p class="ptxt">${esc(it.text)}</p>`).join("")}</section>`).join("");
     return `<div class="frame"><div class="pbar noprint"><button type="button" class="lnk back" id="b-pback" data-act="print-close"><span aria-hidden="true">←</span> Retour</button>${right}</div><main class="pdoc">${doc}</main></div>`;
   }
-  const viewBar = (show, canPrint) => (show ? `<div class="vbar"><div class="seg" role="group" aria-label="Vue">${[["cartes", "Cartes"], ["texte", "Texte"]].map((m) =>
+  const viewBar = (show, canPrint) => (show ? `<div class="vbar"><div class="seg" role="group" aria-label="Vue">${[["texte", "Texte"], ["cartes", "Cartes"]].map((m) =>
     `<button type="button" class="segb" id="v-${m[0]}" data-act="view" data-id="${m[0]}" aria-pressed="${viewMode === m[0]}">${m[1]}</button>`).join("")}</div>${canPrint ? `<button type="button" class="lnk subtle" id="b-print" data-act="print-open">Version imprimable</button>` : ""}</div>` : "");
   const newScriptBtn = () => `<button type="button" class="plus" id="b-new-script" data-act="new-script" aria-label="Nouveau script">+</button>`;
   function brokerView(b) {
