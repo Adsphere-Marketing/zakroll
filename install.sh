@@ -63,10 +63,15 @@ if [ -z "$CR" ] || [ -z "$EP" ]; then
     [ -z "$EP_HTTP" ] && EP_HTTP=$(awk 'tolower($0) ~ /^entrypoints:/ {f=1; next} f && $1 ~ /^[A-Za-z0-9_-]+:$/ {n=$1; sub(":","",n)} f && /:80"?$/ {print n; exit}' "$f" || true)
   done
 fi
-[ -n "$NET" ] || NET=$(printf '%s\n' "$TNETS" | grep -v '^bridge$' | head -1 || true)
+[ -n "$NET" ] || NET=$(printf '%s\n' "$TNETS" | grep -vE '^(bridge|host|none)$' | head -1 || true)
+if [ -z "$NET" ]; then
+  # Traefik tourne en mode « host » : il joint n'importe quel conteneur par son IP. Réseau dédié.
+  NET=zakroll
+  docker network inspect zakroll >/dev/null 2>&1 || docker network create zakroll >/dev/null
+  echo "  Traefik en mode host : réseau dédié « zakroll »"
+fi
 [ -n "$EP" ] || EP=websecure
 [ -n "$EP_HTTP" ] || EP_HTTP=web
-[ -n "$NET" ] || die "Impossible de trouver le réseau Docker de Traefik."
 if [ -z "$CR" ]; then
   echo "  Résolveur de certificats introuvable. Sortie de diagnostic :"
   docker inspect "$TRAEFIK" | head -200 || true
