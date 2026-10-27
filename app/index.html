@@ -153,6 +153,9 @@ main { display: block; }
 .dck:checked { background: var(--done); border-color: var(--done); }
 .dck:checked::after { opacity: 1; }
 .dck:disabled { opacity: .4; cursor: not-allowed; }
+.dcks { display: inline-flex; align-items: flex-end; gap: 10px; flex: none; }
+.dckl { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.dblk.is-done .dckl small, .vrow.is-done .dckl small { color: var(--done); }
 
 /* Choix des scripts à imprimer */
 .picks { display: grid; gap: 8px; }
@@ -225,6 +228,13 @@ main { display: block; }
 .tick input:checked { background: var(--done); border-color: var(--done); }
 .tick input:checked::after { opacity: 1; }
 .tick input:disabled { opacity: .4; cursor: not-allowed; }
+.ticks { display: flex; flex-direction: column; border-left: 1px solid var(--line); }
+.ticks .tick { flex: 1; flex-direction: column; gap: 3px; border-left: 0; padding: 8px 6px; }
+.ticks .tick + .tick { border-top: 1px solid var(--line); }
+.ticks .tick input { width: 34px; height: 34px; border-radius: 9px; }
+.ticks .tick input::after { width: 15px; height: 8px; border-width: 0 0 3.5px 3.5px; }
+.tick small, .dckl small { font-family: var(--f-display); font-weight: 700; font-size: 10.5px; line-height: 1; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.clip.is-done .tick small { color: var(--done); }
 .clip.is-redo { border-color: var(--warn); }
 .cards { display: grid; gap: 10px; }
 
@@ -716,16 +726,24 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
     if (c.h != null) return c.h === th(it.text) || (it.ok || []).indexOf(c.h) >= 0;
     return num(c.rev) >= num(it.rev);
   }
-  const isDone = (bid, it) => checkOk(getCheck(bid, it.key), it);
-  const isRedo = (bid, it) => { const c = getCheck(bid, it.key); return !!c && !checkOk(c, it); };
+  // Cases d'un hook pour ce courtier : une par body quand le script en a plusieurs (clé « hook|body »), sinon une seule (clé du hook).
+  const bodiesFor = (s, bid) => visibleItems(s, bid).filter((it) => it.kind === "body");
+  const bodyTag = (bs, i) => { const l = String(bs[i].label || "").trim(); return l && !/^body$/i.test(l) ? l : "Body " + (i + 1); };
+  function slots(s, bid, it) {
+    const bs = bodiesFor(s, bid);
+    if (bs.length < 2) return [{ key: it.key, label: "" }];
+    return bs.map((bd, i) => ({ key: it.key + "|" + bd.key, label: bodyTag(bs, i) }));
+  }
+  const slotDone = (bid, it, sl) => checkOk(getCheck(bid, sl.key), it);
+  const isDone = (bid, s, it) => slots(s, bid, it).every((sl) => slotDone(bid, it, sl));
+  const isRedo = (bid, s, it) => !isDone(bid, s, it) && slots(s, bid, it).some((sl) => { const c = getCheck(bid, sl.key); return !!c && !checkOk(c, it); });
   function stats(bid) {
     let total = 0, done = 0;
     for (const s of C().scripts) {
       if (!has(s, bid)) continue;
       for (const it of visibleItems(s, bid)) {
         if (it.kind !== "hook") continue;
-        total++;
-        if (isDone(bid, it)) done++;
+        slots(s, bid, it).forEach((sl) => { total++; if (slotDone(bid, it, sl)) done++; });
       }
     }
     return { total, done, left: total - done };
@@ -1059,10 +1077,10 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
     const rank = (it) => (it.kind === "hook" ? 0 : it.kind === "body" ? 1 : 2);
     return items.map((it, i) => [it, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map((x) => x[0]);
   }
-  function scriptDone(bid, items) {
-    const hooks = items.filter((it) => it.kind === "hook");
-    const n = hooks.filter((it) => isDone(bid, it)).length;
-    return { n, total: hooks.length, done: hooks.length > 0 && n === hooks.length };
+  function scriptDone(bid, s, items) {
+    let n = 0, total = 0;
+    items.filter((it) => it.kind === "hook").forEach((it) => slots(s, bid, it).forEach((sl) => { total++; if (slotDone(bid, it, sl)) n++; }));
+    return { n, total, done: total > 0 && n === total };
   }
   // La version de chaque élément pour ce courtier, éléments encore vides compris (édition).
   function heldItems(s, bid) {
@@ -1088,7 +1106,7 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
       items: ordered(b ? visibleItems(s, b.id) : mainItems(s).filter((it) => it.text.trim())),
       held: ed ? ordered(b ? heldItems(s, b.id) : mainItems(s)) : null
     })).filter((x) => !b || x.items.length || (x.held && x.held.length));
-    list.forEach((x) => { x.st = b ? scriptDone(b.id, x.items) : { n: 0, total: x.items.filter((it) => it.kind === "hook").length, done: false }; });
+    list.forEach((x) => { x.st = b ? scriptDone(b.id, x.s, x.items) : { n: 0, total: x.items.filter((it) => it.kind === "hook").length, done: false }; });
     const firstTodo = list.find((x) => !x.st.done), who = b ? b.id : "tous";
     list.forEach((x) => {
       x.def = x === firstTodo;
@@ -1119,18 +1137,30 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
 
   function isOpen(it, done) { return Object.prototype.hasOwnProperty.call(S.ui.fold, it.id) ? S.ui.fold[it.id] : !done; }
   const triBtn = (act, id, open, aria) => `<button type="button" class="tribtn" id="${act === "sfold" ? "sb" : "fold"}-${esc(id)}" data-act="${act}" data-id="${esc(id)}" aria-expanded="${open}" aria-label="${esc(aria || "Ouvrir ou fermer")}"><span class="tri">${ICON.tri}</span></button>`;
-  const tickBox = (b, s, it, done, idp, cls) => `<input type="checkbox"${cls ? ` class="${cls}"` : ""} id="${esc(idp + it.id)}" data-act="check" data-sid="${esc(s.id)}" data-iid="${esc(it.id)}"${done ? " checked" : ""}${S.readOnly ? " disabled" : ""} aria-label="${esc(clipName(b.name, s, it))}${NB}: tourné">`;
+  const tickInput = (b, s, it, sl, i, idp, cls) => `<input type="checkbox"${cls ? ` class="${cls}"` : ""} id="${esc(idp + it.id + (i ? "~" + i : ""))}" data-act="check" data-sid="${esc(s.id)}" data-iid="${esc(it.id)}" data-key="${esc(sl.key)}"${slotDone(b.id, it, sl) ? " checked" : ""}${S.readOnly ? " disabled" : ""} aria-label="${esc(clipName(b.name, s, it))}${sl.label ? " · " + esc(sl.label) : ""}${NB}: tourné">`;
+  // Colonne de cases d'une carte : une case, ou une par body avec son étiquette au-dessus.
+  function tickCol(b, s, it) {
+    const sls = slots(s, b.id, it);
+    if (sls.length === 1) return `<label class="tick" for="${esc("ck-" + it.id)}">${tickInput(b, s, it, sls[0], 0, "ck-")}</label>`;
+    return `<div class="ticks">${sls.map((sl, i) => `<label class="tick" for="${esc("ck-" + it.id + (i ? "~" + i : ""))}"><small>${esc(sl.label)}</small>${tickInput(b, s, it, sl, i, "ck-")}</label>`).join("")}</div>`;
+  }
+  // Cases en ligne (vue Texte, lignes du propriétaire) : même logique, petites cases.
+  function tickRow(b, s, it, idp) {
+    const sls = slots(s, b.id, it);
+    if (sls.length === 1) return tickInput(b, s, it, sls[0], 0, idp, "dck");
+    return `<span class="dcks">${sls.map((sl, i) => `<label class="dckl" for="${esc(idp + it.id + (i ? "~" + i : ""))}"><small>${esc(sl.label)}</small>${tickInput(b, s, it, sl, i, idp, "dck")}</label>`).join("")}</span>`;
+  }
   // Carte (courtier) : l'en-tête entier ouvre ou ferme.
   function itemCard(b, s, it) {
     const isHook = it.kind === "hook";
-    const done = isHook && isDone(b.id, it);
-    const redo = isHook && !done && isRedo(b.id, it);
+    const done = isHook && isDone(b.id, s, it);
+    const redo = isHook && !done && isRedo(b.id, s, it);
     const open = isOpen(it, done);
     const head = `<div class="tag"><span class="slate">${esc(itemLabel(it))}</span>${isHook ? `<span class="fname">${esc(clipName(b.name, s, it))}</span>` : `<span class="fname"></span>`}${redo ? `<span class="pill warn">À refaire</span>` : ""}<span class="tri">${ICON.tri}</span></div>`;
     const body = `<div class="cbody" id="fold-${esc(it.id)}" role="button" tabindex="0" aria-expanded="${open}" data-act="fold" data-id="${esc(it.id)}">${head}${open ? `<p class="txt">${esc(it.text)}</p>` : ""}</div>`;
     if (!isHook) return `<article class="clip read${open ? " open" : ""}">${body}</article>`;
     return `<article class="clip${done ? " is-done" : ""}${redo ? " is-redo" : ""}${open ? " open" : ""}">${body}
-      <label class="tick" for="${esc("ck-" + it.id)}">${tickBox(b, s, it, done, "ck-")}</label>
+      ${tickCol(b, s, it)}
     </article>`;
   }
   function depositBtn(b, s) {
@@ -1150,10 +1180,10 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
   // `live` = page du courtier (case + pliage, même état que les cartes) ; sinon simple aperçu.
   function textBlock(b, s, it, live) {
     const isHook = it.kind === "hook";
-    const done = live && isHook && isDone(b.id, it);
-    const redo = live && isHook && !done && isRedo(b.id, it);
+    const done = live && isHook && isDone(b.id, s, it);
+    const redo = live && isHook && !done && isRedo(b.id, s, it);
     const open = live ? isOpen(it, done) : true;
-    const box = live && isHook ? tickBox(b, s, it, done, "dk-", "dck") : "";
+    const box = live && isHook ? tickRow(b, s, it, "dk-") : "";
     const lab = live
       ? `<span class="dfold" id="dfold-${esc(it.id)}" role="button" tabindex="0" aria-expanded="${open}" data-act="fold" data-id="${esc(it.id)}"><span class="dlab">${esc(itemLabel(it))}</span><span class="tri">${ICON.tri}</span></span>`
       : `<span class="dlab">${esc(itemLabel(it))}</span>`;
@@ -1347,7 +1377,7 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
   function scriptPills(s) {
     const ini = initials();
     return `<div class="spills" role="group" aria-label="Qui a ce script">${C().brokers.map((br) => {
-      const on = has(s, br.id), st = on ? scriptDone(br.id, visibleItems(s, br.id)) : null;
+      const on = has(s, br.id), st = on ? scriptDone(br.id, s, visibleItems(s, br.id)) : null;
       const cls = !on ? "off" : st.done ? "ok" : "on";
       const lab = ini[br.id] + (on ? NB + st.n + "/" + st.total : "");
       return `<button type="button" class="bp ${cls}" id="sp-${esc(s.id)}-${esc(br.id)}" data-act="spill" data-sid="${esc(s.id)}" data-b="${esc(br.id)}" data-name="${esc(br.name)}" title="${esc(br.name)}" aria-pressed="${on}" aria-label="${esc(br.name + (on ? " : " + st.n + "/" + st.total : " : n'a pas ce script"))}">${esc(lab)}</button>`;
@@ -1358,7 +1388,7 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
     const ini = initials(), vs = s.items.filter((x) => x.key === v.key);
     return C().brokers.map((br) => {
       const sc = has(s, br.id), holds = sc && vs.find((x) => has(x, br.id)) === v;
-      const cls = !sc ? "na" : holds ? (v.kind === "hook" && isDone(br.id, v) ? "ok" : "on") : "off";
+      const cls = !sc ? "na" : holds ? (v.kind === "hook" && isDone(br.id, s, v) ? "ok" : "on") : "off";
       const tip = br.name + (sc ? "" : " (n'a pas ce script)");
       return `<button type="button" class="bp ${cls}" id="ip-${esc(v.id)}-${esc(br.id)}" data-act="pill" data-iid="${esc(v.id)}" data-b="${esc(br.id)}" data-name="${esc(tip)}" title="${esc(tip)}" aria-pressed="${holds}"${sc ? "" : " disabled"}>${esc(ini[br.id])}</button>`;
     }).join("");
@@ -1436,8 +1466,8 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
   function ownerElem(b, s, key, mode) {
     const vs = s.items.filter((it) => it.key === key);
     const mine = b ? vs.find((v) => has(v, b.id)) || null : null;
-    const done = !!(mine && mine.kind === "hook" && isDone(b.id, mine));
-    const redo = !!(mine && mine.kind === "hook" && !done && isRedo(b.id, mine));
+    const done = !!(mine && mine.kind === "hook" && isDone(b.id, s, mine));
+    const redo = !!(mine && mine.kind === "hook" && !done && isRedo(b.id, s, mine));
     const fk = "k:" + s.id + "~" + key;
     const open = Object.prototype.hasOwnProperty.call(S.ui.fold, fk) ? S.ui.fold[fk] : !done;
     const cls = (mode === "cards" ? "clip own read" : "dblk own") + (open ? " open" : "") + (done ? " is-done" : "") + (redo ? " is-redo" : "");
@@ -1445,8 +1475,8 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
   }
   function ownerRow(b, s, v, sub, mine, open, fk, mode) {
     const isHook = v.kind === "hook", isMine = !!(b && mine === v);
-    const done = isMine && isHook && isDone(b.id, v), redo = isMine && isHook && !done && isRedo(b.id, v);
-    const box = isMine && isHook ? tickBox(b, s, v, done, mode === "cards" ? "ck-" : "dk-", "dck") : "";
+    const done = isMine && isHook && isDone(b.id, s, v), redo = isMine && isHook && !done && isRedo(b.id, s, v);
+    const box = isMine && isHook ? tickRow(b, s, v, mode === "cards" ? "ck-" : "dk-") : "";
     // Poubelle : version (variante) = supprimée ; sinon retiré de ce courtier (page d'un courtier) ou corbeille (« Tous »).
     const canTrash = sub || !b || isMine;
     const tools = ib("ver", v.id, ICON.branch, "Version pour…") + (canTrash ? ib("item-trash", v.id, ICON.trash, sub ? "Supprimer cette version" : b ? "Retirer pour " + b.name : "Mettre à la corbeille", false, "trash") : "")
@@ -1710,16 +1740,17 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
       scheduleRender();
     });
   }
-  function setCheck(bid, s, it, on) {
+  function setCheck(bid, s, it, key, on) {
     if (S.readOnly || !S.db) { scheduleRender(); return; }
     const now = Date.now();
+    const sl = slots(s, bid, it).find((x) => x.key === key) || { key: it.key, label: "" };
     const val = on ? { h: th(it.text), rev: num(it.rev), at: now } : null;
     delete S.ui.fold[it.id];
-    track("c|" + bid + "|" + it.key, val, enqueueProgress(bid, { checks: { [it.key]: val }, updatedAt: now }));
+    track("c|" + bid + "|" + sl.key, val, enqueueProgress(bid, { checks: { [sl.key]: val }, updatedAt: now }));
     if (on) {
-      showToast(itemLabel(it) + NB + ": tourné.", {
+      showToast(itemLabel(it) + (sl.label ? " · " + sl.label : "") + NB + ": tourné.", {
         label: "Annuler",
-        run: () => { const f = findItem(it.id); if (f) setCheck(bid, f.s, f.it, false); }
+        run: () => { const f = findItem(it.id); if (f) setCheck(bid, f.s, f.it, sl.key, false); }
       });
     }
   }
@@ -2082,7 +2113,7 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
       if (!r) return;
       if (f === "i-text" && it.kind === "hook") {
         const after = findItem(targetId);
-        const lost = after ? T.filter((b) => before[b] && isDone(b, before[b]) && !isDone(b, after.it)) : [];
+        const lost = after ? T.filter((b) => before[b] && isDone(b, s, before[b]) && !isDone(b, after.s, after.it)) : [];
         if (lost.length) {
           const old = S.ui.bump && (S.ui.bump.iid === id || S.ui.bump.iid === targetId) ? S.ui.bump : null;
           S.ui.bump = {
@@ -2142,7 +2173,7 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
     const f = findItem(id);
     const b = currentBroker();
     if (!f || !b) return;
-    const done = f.it.kind === "hook" && isDone(b.id, f.it);
+    const done = f.it.kind === "hook" && isDone(b.id, f.s, f.it);
     S.ui.fold[id] = !isOpen(f.it, done);
     render();
   }
@@ -2261,7 +2292,7 @@ textarea.field { display: block; resize: vertical; min-height: 44px; }
     const b = currentBroker();
     const f = findItem(t.dataset.iid);
     if (!b || !f) return;
-    setCheck(b.id, f.s, f.it, t.checked);
+    setCheck(b.id, f.s, f.it, t.dataset.key || f.it.key, t.checked);
   });
 
   let sugTimer = 0;
