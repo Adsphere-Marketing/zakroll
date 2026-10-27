@@ -1,0 +1,2609 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Zak Roll</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout : une colonne étroite comme une feuille de service. Scripts = bulles pliables (À faire / Terminé) ; hooks = claquettes pliables à cocher ; body et CTA = mêmes cartes, sans case. Le propriétaire édite en place dans les bulles (vue Cartes), selon « Pour qui ». */
+:root {
+  --page: #ECEEF1;
+  --card: #FFFFFF;
+  --ink: #111419;
+  --muted: #59606C;
+  --line: #D2D7DE;
+  --track: #D2D7DE;
+  --soft: #F3F4F6;
+  --rec: #CF2A1D;
+  --on-rec: #FFFFFF;
+  --done: #11743A;
+  --on-done: #FFFFFF;
+  --done-bg: #DFF2E5;
+  --warn: #855000;
+  --warn-bg: #FFEFC2;
+  --btn: #111419;
+  --btn-ink: #FFFFFF;
+  --focus: #2C5AE0;
+  --shade: rgb(17 20 25 / .07);
+  --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0D0F12; --card: #171A1F; --ink: #F0F2F4; --muted: #9AA2AE; --line: #2B3038; --track: #363C46; --soft: #1D2127;
+    --rec: #FF5A4D; --on-rec: #0D0F12; --done: #45C978; --on-done: #0D0F12; --done-bg: #132E1F;
+    --warn: #F2B53F; --warn-bg: #38290A; --btn: #F0F2F4; --btn-ink: #0D0F12; --focus: #7FA3FF;
+    --shade: rgb(0 0 0 / .35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0D0F12; --card: #171A1F; --ink: #F0F2F4; --muted: #9AA2AE; --line: #2B3038; --track: #363C46; --soft: #1D2127;
+  --rec: #FF5A4D; --on-rec: #0D0F12; --done: #45C978; --on-done: #0D0F12; --done-bg: #132E1F;
+  --warn: #F2B53F; --warn-bg: #38290A; --btn: #F0F2F4; --btn-ink: #0D0F12; --focus: #7FA3FF;
+  --shade: rgb(0 0 0 / .35);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 56px;
+}
+button, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+main { display: block; }
+
+.frame { max-width: 680px; margin: 0 auto; }
+.frame.wide { max-width: 820px; }
+.top { padding-top: 14px; }
+.clap {
+  height: 14px;
+  border: 2px solid var(--ink);
+  border-radius: 4px 4px 2px 2px;
+  background: repeating-linear-gradient(-58deg, var(--ink) 0 11px, var(--card) 11px 22px);
+}
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding-top: 6px; }
+.brand-name { font-family: var(--f-display); font-weight: 600; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.lnk {
+  background: none; border: 0; padding: 8px 0; color: var(--ink); cursor: pointer;
+  font-weight: 700; font-size: 15px; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
+}
+.lnk.subtle { color: var(--muted); font-size: 14px; }
+.lnk.back {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 14px 0 10px;
+  border: 1.5px solid var(--line); border-radius: 99px; text-decoration: none; font-size: 15px;
+}
+.lnk.back:hover { border-color: var(--ink); }
+.saved { font-size: 13px; font-weight: 700; color: var(--done); opacity: 0; transition: opacity .3s; }
+.saved.on { opacity: 1; }
+
+/* ---- Accueil ---- */
+.home { display: grid; gap: 16px; padding: 12px 0 8px; }
+.cgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ccard {
+  display: flex; flex-direction: column; align-items: stretch; gap: 12px; width: 100%; min-width: 0;
+  padding: 18px 16px 16px; text-align: left; cursor: pointer;
+  background: var(--card); color: var(--ink); border: 1.5px solid var(--line); border-radius: 14px;
+  box-shadow: 0 1px 2px var(--shade), 0 3px 12px var(--shade);
+  transition: border-color .15s, transform .1s;
+}
+.ccard:hover { border-color: var(--ink); }
+.ccard:active { transform: scale(.985); }
+.cname { font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 8vw, 36px); line-height: 1; overflow-wrap: anywhere; }
+.ccard .bar { display: block; }
+.cstate { font-family: var(--f-display); font-weight: 700; font-size: 17px; line-height: 1; letter-spacing: .1em; text-transform: uppercase; color: var(--rec); font-variant-numeric: tabular-nums; }
+.ccard.is-complete .cstate { color: var(--done); }
+
+/* ---- Page courtier ---- */
+.hero { padding: 10px 0 16px; display: grid; gap: 10px; }
+.hi { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: clamp(32px, 9vw, 44px); line-height: 1; overflow-wrap: anywhere; }
+.meter { display: flex; align-items: center; gap: 12px; }
+.bar { height: 10px; border-radius: 99px; background: var(--track); overflow: hidden; }
+.meter .bar { flex: 1; }
+.bar > i { display: block; height: 100%; background: var(--done); border-radius: inherit; transition: width .35s ease; }
+.frac { font-family: var(--f-display); font-weight: 700; font-size: 20px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.sect { margin: 18px 0 10px; font-family: var(--f-display); font-weight: 700; font-size: 15px; line-height: 1; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.sbub { margin-bottom: 12px; border: 1.5px solid var(--line); border-radius: 16px; background: color-mix(in srgb, var(--card) 45%, var(--page)); min-width: 0; }
+.sbhd {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 54px; padding: 8px 14px 8px 10px;
+  border: 0; border-radius: 15px; background: transparent; color: var(--ink); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.sbhd .slate { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.sbhd .frac { margin-left: auto; font-size: 18px; }
+.sbub.open .sbhd .tri { transform: rotate(180deg); }
+.sbub.is-done .sbhd .slate { background: var(--done); color: var(--on-done); }
+.sbub.is-done .sbhd .frac { color: var(--done); }
+.sbin { display: grid; gap: 10px; padding: 0 10px 12px; }
+.btn.dep { width: 100%; min-height: 50px; font-size: 16px; background: var(--rec); color: var(--on-rec); border-color: var(--rec); }
+.btn.dep:hover { background: color-mix(in srgb, var(--rec) 86%, var(--ink)); }
+
+/* Choix de vue */
+.vbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 4px; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 11px; background: var(--card); border: 1px solid var(--line); }
+.segb { min-height: 34px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-weight: 700; font-size: 14px; cursor: pointer; }
+.segb[aria-pressed="true"] { background: var(--btn); color: var(--btn-ink); }
+
+/* Vue Texte (dans la même bulle que les cartes) : étiquette sur sa ligne, texte dessous, une ligne vide entre les blocs */
+.doc { padding: 18px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+.dblk + .dblk { margin-top: 24px; }
+.dhead { display: flex; align-items: center; gap: 10px; margin: 0; min-height: 30px; }
+.dblk.open .dhead { margin-bottom: 6px; }
+.dfold { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 6px; }
+.dfold:focus-visible { outline-offset: 3px; }
+.dblk.open .dfold .tri { transform: rotate(180deg); }
+.dlab { font-family: var(--f-display); font-weight: 700; font-size: 25px; line-height: 1; letter-spacing: .03em; color: var(--ink); }
+.dblk.is-done .dlab { color: var(--done); }
+.dblk.is-redo .dlab { color: var(--warn); }
+.dtxt { margin: 0; font-size: 18px; line-height: 1.55; white-space: pre-line; overflow-wrap: anywhere; }
+.dck {
+  appearance: none; -webkit-appearance: none; display: inline-grid; place-content: center; flex: none;
+  width: 28px; height: 28px; margin: 0; border: 2px solid var(--ink); border-radius: 7px; background: var(--card); cursor: pointer;
+}
+.dck::after { content: ""; width: 11px; height: 6px; opacity: 0; border-left: 3px solid var(--on-done); border-bottom: 3px solid var(--on-done); transform: translateY(-1px) rotate(-45deg); }
+.dck:checked { background: var(--done); border-color: var(--done); }
+.dck:checked::after { opacity: 1; }
+.dck:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Choix des scripts à imprimer */
+.picks { display: grid; gap: 8px; }
+.pick { background: var(--card); border: 1px solid var(--line); border-radius: 14px; min-width: 0; }
+.prow { display: flex; align-items: center; gap: 6px; padding: 4px 6px 4px 14px; }
+.plabel { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 52px; cursor: pointer; }
+.plabel .slate { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.pst { margin-left: auto; font-family: var(--f-display); font-weight: 700; font-size: 18px; white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--muted); }
+.pst.ok { color: var(--done); }
+.ptri { flex: none; width: 44px; height: 44px; display: grid; place-content: center; padding: 0; border: 0; border-radius: 10px; background: transparent; cursor: pointer; }
+.ptri:hover { background: var(--soft); }
+.pick.open .ptri .tri { transform: rotate(180deg); }
+.pprev { padding: 4px 16px 16px; border-top: 1px solid var(--line); }
+.pprev .dblk { margin-top: 16px; }
+.pprev .dlab { font-size: 20px; }
+.pprev .dtxt { font-size: 16px; }
+.pgo { display: grid; gap: 10px; margin-top: 16px; }
+.pgo .btn { min-height: 48px; }
+
+/* Vue Impression : noir sur blanc, sans contrôle */
+.pbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 0; }
+.pnote { margin: 0; font-size: 14px; color: var(--muted); }
+.pdoc { padding: 30px 24px; background: #fff; color: #000; border: 1px solid var(--line); border-radius: 6px; font-family: var(--f-body); }
+.psec + .psec { margin-top: 44px; }
+.ph { margin: 0 0 18px; font-size: 30px; line-height: 1.1; }
+.plab { margin: 0; font-weight: 700; font-size: 15px; letter-spacing: .04em; }
+.ptxt { margin: 2px 0 20px; font-size: 20px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+@media print {
+  body { background: #fff !important; color: #000 !important; padding: 0 !important; }
+  .noprint, .toast { display: none !important; }
+  .pdoc { padding: 0; border: 0; border-radius: 0; }
+  .psec + .psec { margin-top: 0; break-before: page; page-break-before: always; }
+  .ph { font-size: 22pt; }
+  .ptxt { font-size: 15pt; }
+}
+
+.clip {
+  display: grid; grid-template-columns: minmax(0, 1fr) 72px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+  box-shadow: 0 1px 2px var(--shade), 0 3px 12px var(--shade);
+}
+.clip.read { grid-template-columns: minmax(0, 1fr); }
+.cbody { padding: 12px 10px 12px 14px; min-width: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.cbody:focus-visible { outline-offset: -3px; }
+.tag { display: flex; align-items: center; gap: 6px 8px; min-height: 30px; }
+.tag .fname { flex: 1 1 auto; min-width: 0; }
+.tri { flex: none; display: inline-grid; place-content: center; width: 22px; height: 22px; color: var(--muted); transition: transform .2s; }
+.clip.open .tri { transform: rotate(180deg); }
+.slate {
+  display: inline-block; background: var(--ink); color: var(--card); border-radius: 5px;
+  font-family: var(--f-display); font-weight: 700; font-size: 16px; line-height: 1; letter-spacing: .08em; text-transform: uppercase;
+  padding: 5px 9px 4px; white-space: nowrap; flex: none;
+}
+.slate.big { font-size: 20px; text-transform: none; letter-spacing: .04em; }
+.clip.is-done .slate { background: var(--done); color: var(--on-done); }
+.fname { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+.txt { margin: 8px 0 2px; font-size: 19px; line-height: 1.45; white-space: pre-line; overflow-wrap: anywhere; }
+.tick { display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--line); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tick:hover { background: var(--soft); }
+.tick input {
+  appearance: none; -webkit-appearance: none; margin: 0; width: 40px; height: 40px; cursor: pointer;
+  border: 2.5px solid var(--ink); border-radius: 10px; background: var(--card);
+  display: grid; place-content: center; transition: background .15s, border-color .15s;
+}
+.tick input::after {
+  content: ""; width: 18px; height: 10px; opacity: 0;
+  border-left: 4px solid var(--on-done); border-bottom: 4px solid var(--on-done);
+  transform: translateY(-2px) rotate(-45deg);
+}
+.tick input:checked { background: var(--done); border-color: var(--done); }
+.tick input:checked::after { opacity: 1; }
+.tick input:disabled { opacity: .4; cursor: not-allowed; }
+.clip.is-redo { border-color: var(--warn); }
+.cards { display: grid; gap: 10px; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none;
+  font-family: var(--f-body); font-weight: 700; font-size: 13px; line-height: 1; letter-spacing: 0; text-transform: none;
+  padding: 5px 9px; border-radius: 99px; background: var(--soft); color: var(--muted); border: 1px solid var(--line);
+}
+.pill.ok { background: var(--done-bg); color: var(--done); border-color: transparent; }
+.pill.warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+
+/* ---- Boutons ---- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 14px;
+  border-radius: 10px; border: 1.5px solid var(--ink); background: var(--card); color: var(--ink);
+  font-weight: 700; font-size: 15px; line-height: 1.15; text-align: center; text-decoration: none; cursor: pointer;
+}
+.btn:hover { background: var(--soft); }
+.btn.sm { min-height: 36px; padding: 0 12px; font-size: 14px; border-radius: 9px; }
+.btn.ghost { border-color: var(--line); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.btn.danger { color: var(--rec); border-color: color-mix(in srgb, var(--rec) 50%, var(--line)); }
+.btn.danger.armed { background: var(--rec); color: var(--on-rec); border-color: var(--rec); }
+.ib {
+  width: 34px; height: 34px; display: inline-grid; place-content: center; flex: none; padding: 0;
+  border: 0; border-radius: 8px; background: transparent; color: var(--muted);
+  font-size: 16px; font-weight: 700; cursor: pointer;
+}
+.ib:hover:not(:disabled) { background: var(--soft); color: var(--ink); }
+.ib.trash:hover:not(:disabled) { color: var(--rec); }
+.ib:disabled { opacity: .3; cursor: default; }
+.plus {
+  display: block; width: 100%; min-height: 44px; border: 1.5px dashed var(--line); border-radius: 12px; cursor: pointer;
+  background: transparent; color: var(--muted); font-size: 24px; font-weight: 700; line-height: 1;
+}
+.plus:hover { border-color: var(--ink); color: var(--ink); }
+.banner {
+  margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; font-size: 15px;
+  background: var(--warn-bg); color: var(--ink); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent);
+}
+.note { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--soft); border: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+.empty { margin: 18px 0; padding: 20px 18px; border-radius: 14px; background: var(--card); border: 1.5px dashed var(--line); color: var(--muted); }
+.empty p { margin: 0; }
+
+/* ---- Gérer ---- */
+.mtop { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0 14px; }
+.h1 { margin: 6px 0 14px; font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 6vw, 36px); line-height: 1; }
+.mlist { display: grid; gap: 10px; margin-bottom: 12px; }
+.hcard { display: flex; align-items: center; gap: 4px; padding: 4px 6px 4px 4px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--card); min-width: 0; }
+.hcard:hover { border-color: var(--ink); }
+.hopen {
+  flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; text-align: left; cursor: pointer;
+  padding: 10px 10px; border: 0; background: transparent; color: var(--ink);
+}
+.mtitle { font-weight: 700; overflow-wrap: anywhere; }
+.tools { display: inline-flex; align-items: center; gap: 2px; flex: none; margin-left: auto; }
+.panel { display: grid; gap: 10px; padding: 14px; margin-bottom: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; min-width: 0; }
+.shead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.shead .codewrap { flex: 1 1 110px; min-width: 0; }
+.shead .envwrap { flex: 0 1 110px; min-width: 80px; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pillb {
+  min-height: 32px; padding: 0 12px; border-radius: 99px; cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--card); color: var(--muted); font-weight: 700; font-size: 14px;
+}
+.pillb[aria-pressed="true"] { background: var(--btn); color: var(--btn-ink); border-color: var(--btn); }
+.pillb.add { border-style: dashed; font-weight: 600; }
+.pillb:hover { border-color: var(--ink); }
+.list { display: grid; gap: 10px; }
+.list + .list { margin-top: 18px; }
+.addk {
+  justify-self: start; min-height: 38px; padding: 0 14px; border-radius: 99px; cursor: pointer;
+  border: 1.5px dashed var(--line); background: transparent; color: var(--muted); font-weight: 700; font-size: 14px;
+}
+.addk:hover { border-color: var(--ink); color: var(--ink); }
+/* Propriétaire : pastilles des courtiers (qui a quoi, qui a tourné), versions en sous-lignes, vue « Tous » */
+.bp {
+  min-width: 30px; height: 30px; padding: 0 8px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--card);
+  color: var(--muted); font-size: 13px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; cursor: pointer;
+  -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+}
+.bp:hover:not(:disabled) { border-color: var(--ink); }
+.bp.on { background: var(--ink); border-color: var(--ink); color: var(--card); }
+.bp.ok { background: var(--done); border-color: var(--done); color: var(--on-done); }
+.bp.na { border-style: dashed; opacity: .4; cursor: not-allowed; }
+.spills { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 12px 10px 36px; }
+.rpills { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 6px; }
+.rpills .fname { margin-left: auto; max-width: 48%; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.clip.own { display: block; padding: 10px 10px 12px 12px; }
+.vrow + .vrow { margin-top: 12px; }
+.vrow.sub { margin-left: 12px; padding-left: 10px; border-left: 3px solid var(--warn); }
+.vrow.sub .slate { background: var(--warn); color: var(--card); }
+.vrow.sub .dlab { color: var(--warn); }
+.rhead { display: flex; align-items: center; gap: 6px; min-height: 34px; min-width: 0; }
+.rtools { margin-left: auto; display: inline-flex; align-items: center; flex: none; }
+.rtools .ib { width: 30px; }
+.vrow.is-done .slate { background: var(--done); color: var(--on-done); }
+.vrow.is-done .dlab { color: var(--done); }
+.vrow .txtin { margin-top: 8px; }
+.verch { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 8px 0 0; padding: 6px 8px; border-radius: 10px; background: var(--warn-bg); }
+.verch .fl { margin-right: 4px; color: var(--warn); }
+.tip { position: fixed; z-index: 40; max-width: 150px; padding: 6px 10px; border-radius: 8px; background: var(--btn); color: var(--btn-ink); font-size: 13px; font-weight: 700; pointer-events: none; }
+.abars { display: grid; gap: 4px; }
+.arow { display: grid; grid-template-columns: minmax(56px, auto) 1fr auto; align-items: center; gap: 12px; min-height: 40px; padding: 2px 0; border: 0; background: none; color: var(--ink); text-align: left; cursor: pointer; }
+.arow .aname { font-family: var(--f-display); font-weight: 700; font-size: 20px; }
+.arow .frac { font-size: 17px; }
+.arow.is-complete .frac { color: var(--done); }
+.ccard.tous { border-style: dashed; }
+.sbhd.own .ib.trash { width: 30px; }
+/* Propriétaire : titre de bulle éditable (Courtier-code-env), lien raw, HK cliquable, glisser-déposer */
+.sbhd.own { cursor: default; gap: 6px; padding: 6px 6px 6px 2px; min-height: 56px; }
+.ttl { flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; font-family: var(--f-display); font-weight: 700; font-size: 22px; line-height: 1.25; }
+.tbro { color: var(--muted); }
+.gw, .tenv { position: relative; display: inline-flex; align-items: baseline; }
+.tin { font: inherit; color: var(--ink); background: transparent; border: 0; border-bottom: 1.5px dashed var(--line); border-radius: 0; padding: 0 1px; margin: 0; min-width: 12px; }
+.tin:focus { outline: none; border-bottom-color: var(--focus); background: color-mix(in srgb, var(--focus) 9%, transparent); }
+.tin::placeholder { color: var(--muted); opacity: .55; }
+.ghost { color: var(--muted); opacity: .6; white-space: pre; pointer-events: none; }
+.tenv.noenv .tdash { opacity: .35; }
+.tenv .cbarrow { position: static; align-self: center; width: 26px; height: 28px; border-radius: 6px; }
+.tenv .cblist { top: calc(100% + 6px); left: 0; right: auto; min-width: 150px; font-family: var(--f-body); font-weight: 400; line-height: 1.4; }
+.rawchip { flex: 0 1 auto; min-width: 32px; max-width: 104px; height: 32px; display: inline-flex; align-items: center; gap: 5px; padding: 0 7px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; overflow: hidden; }
+.rawchip svg { flex: none; }
+.rawchip.none { border-style: dashed; }
+.rawtxt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rawedit { display: flex; align-items: center; gap: 6px; padding: 0 10px 10px; }
+.tribtn { flex: none; width: 32px; height: 32px; display: grid; place-content: center; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; }
+.tribtn:hover { background: var(--soft); }
+.tribtn .tri { width: auto; height: auto; }
+.sbub.open > .sbhd .tribtn .tri, .clip.open .tribtn .tri, .dblk.open .tribtn .tri { transform: rotate(180deg); }
+.grip { flex: none; width: 28px; height: 34px; display: grid; place-content: center; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--muted); cursor: grab; touch-action: none; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+.grip:hover { color: var(--ink); background: var(--soft); }
+[data-dnd] { position: relative; }
+.lifted { position: relative; z-index: 15; box-shadow: 0 14px 34px rgb(0 0 0 / .25); transition: none !important; cursor: grabbing; }
+.dropline { position: absolute; left: 0; right: 0; height: 4px; border-radius: 4px; background: var(--focus); pointer-events: none; z-index: 14; }
+body.dnd-on, body.dnd-on * { user-select: none; -webkit-user-select: none; cursor: grabbing; }
+.hkbtn { border: 0; cursor: pointer; }
+.slate.hkbtn:hover { box-shadow: 0 0 0 2px var(--focus); }
+.dlab.hkbtn { padding: 0; background: none; }
+.dlab.hkbtn:hover { text-decoration: underline dotted; text-underline-offset: 4px; }
+.hked { display: inline-flex; align-items: baseline; }
+.slate.hked .tin { color: var(--card); border-bottom-color: color-mix(in srgb, var(--card) 55%, transparent); }
+.slate.hked .ghost { color: var(--card); }
+.hkhint { padding: 2px 4px; border: 0; background: none; color: var(--warn); font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; white-space: nowrap; }
+.tag.own { flex-wrap: nowrap; gap: 4px; }
+.tag.own .fname { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tag.own .ib { width: 30px; }
+.cbody.own { cursor: default; }
+.txtin { margin-top: 8px; font-size: 18px; line-height: 1.45; }
+.dhead .dtools { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; }
+.dtxtin { display: block; width: 100%; margin: 0; padding: 2px 4px; border: 0; border-radius: 6px; background: transparent; color: var(--ink); font-size: 18px; line-height: 1.55; resize: none; }
+.dtxtin:focus { outline: none; background: color-mix(in srgb, var(--focus) 7%, transparent); box-shadow: none; }
+.sbin .doc .list + .list { margin-top: 26px; }
+.gw .tin.code { min-width: 4px; }
+@media (max-width: 520px) { .rawtxt { display: none; } .rawchip { padding: 0 6px; } }
+.addplus { justify-self: start; width: 44px; height: 44px; display: grid; place-content: center; padding: 0; border: 2px solid var(--ink); border-radius: 50%; background: var(--card); color: var(--ink); font-size: 26px; font-weight: 700; line-height: 1; cursor: pointer; }
+.addplus:hover { background: var(--btn); color: var(--btn-ink); }
+.emptyslot { padding: 10px 12px; border: 1.5px dashed var(--line); border-radius: 12px; color: var(--muted); font-family: var(--f-display); font-weight: 700; letter-spacing: .06em; }
+.infoline { display: grid; gap: 6px; }
+.infotog { justify-self: start; display: inline-flex; align-items: center; gap: 6px; padding: 2px 4px; border: 0; background: none; color: var(--muted); font-size: 13px; font-weight: 700; cursor: pointer; }
+.infoline.open .infotog .tri { transform: rotate(180deg); }
+.infoprev { font-weight: 400; }
+/* Propriétaire : « Pour qui » et édition en place */
+.fwbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 6px; padding: 8px 10px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); }
+.fwbar.sub { background: var(--warn-bg); border-color: var(--warn); }
+.fwl { margin-right: 4px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.fwbar.sub .fwl { color: var(--warn); }
+.spanel { display: grid; gap: 8px; padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; min-width: 0; }
+.sbin .list + .list { margin-top: 8px; }
+.ecard.is-done .etop .slate { background: var(--done); color: var(--on-done); }
+.ecard.is-redo { border-color: var(--warn); }
+.vbtn { cursor: pointer; }
+.vlist { margin: 0; padding: 8px 10px; list-style: none; display: grid; gap: 4px; background: var(--warn-bg); border-radius: 9px; font-size: 13px; overflow-wrap: anywhere; }
+.vlist li.cur { font-weight: 700; }
+.slot { display: grid; gap: 10px; }
+.slot.multi { padding: 8px; border: 1.5px solid var(--warn); border-radius: 14px; }
+.ecard { display: grid; gap: 6px; padding: 10px 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); min-width: 0; }
+.etop { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+.etop .fname { flex: 1 1 90px; min-width: 0; font-size: 11.5px; line-height: 1.25; }
+.field {
+  width: 100%; min-width: 0; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 9px;
+  background: var(--card); color: var(--ink); font-size: 16px; line-height: 1.4;
+}
+.field:hover { border-color: color-mix(in srgb, var(--ink) 30%, var(--line)); }
+.field:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent); }
+.field::placeholder { color: var(--muted); opacity: .75; }
+textarea.field { display: block; resize: vertical; min-height: 44px; }
+.field.code { font-family: var(--f-display); font-weight: 700; font-size: 24px; padding: 4px 10px; }
+.field.title { font-weight: 700; }
+.field.numin { width: 64px; flex: none; font-family: var(--f-display); font-weight: 700; font-size: 18px; padding: 3px 8px; }
+.field.lab { width: 120px; flex: none; font-family: var(--f-display); font-weight: 700; font-size: 17px; letter-spacing: .04em; padding: 3px 8px; }
+.sugs { display: none; flex-wrap: wrap; gap: 4px 10px; padding-top: 4px; }
+.codewrap:focus-within .sugs { display: flex; }
+.combo { position: relative; }
+.combo .field { padding-right: 38px; }
+.cbarrow {
+  position: absolute; top: 0; right: 0; bottom: 0; width: 40px; display: grid; place-content: center; padding: 0;
+  border: 0; border-radius: 0 9px 9px 0; background: transparent; color: var(--muted); cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.cbarrow:hover { color: var(--ink); }
+.cbarrow svg { transition: transform .2s; }
+.combo.open .cbarrow svg { transform: rotate(180deg); }
+.cblist {
+  position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; min-width: 130px; max-height: 250px; overflow-y: auto;
+  padding: 4px; background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; box-shadow: 0 10px 28px rgb(0 0 0 / .18);
+}
+.cblist[hidden] { display: none; }
+.cbopt {
+  display: block; width: 100%; min-height: 44px; padding: 0 10px; border: 0; border-radius: 7px;
+  background: transparent; color: var(--ink); font-size: 16px; text-align: left; cursor: pointer; overflow-wrap: anywhere;
+}
+.cbopt:hover, .cbopt:focus { background: var(--soft); outline: none; }
+.cbopt[aria-selected="true"] { font-weight: 700; }
+.sug {
+  display: inline; padding: 2px 0; border: 0; background: none; cursor: pointer; text-align: left;
+  font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere;
+}
+.sug:hover { color: var(--ink); }
+.sug.warn { color: var(--warn); }
+.sline { margin: 0; font-size: 13px; color: var(--warn); }
+.sline .lnk { font-size: 13px; padding: 0; }
+.fl { font-size: 13px; font-weight: 700; color: var(--muted); }
+.deprow2 { display: flex; align-items: center; gap: 8px; }
+.deprow2 .dname { flex: 0 0 64px; font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+.trow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+.trow .field.name { flex: 0 1 150px; font-weight: 700; }
+.trow .field.url { flex: 1 1 220px; }
+.crow { display: grid; gap: 4px; min-width: 0; }
+.mono { font-family: var(--f-mono); font-size: 12.5px; }
+.titem {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px;
+  padding: 12px 14px; margin-bottom: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+}
+.tinfo { min-width: 0; flex: 1 1 260px; display: grid; gap: 2px; }
+.twhat { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+.ctrl { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.meta { margin: 0; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+
+.toast {
+  position: fixed; z-index: 30; left: 50%; transform: translateX(-50%);
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  width: max-content; max-width: min(560px, calc(100vw - 32px));
+  display: flex; align-items: center; gap: 14px; padding: 12px 12px 12px 16px; border-radius: 12px;
+  background: var(--btn); color: var(--btn-ink); font-weight: 700; font-size: 15px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / .28);
+}
+.toast button {
+  flex: none; min-height: 36px; padding: 0 12px; border-radius: 8px; cursor: pointer;
+  border: 1.5px solid currentColor; background: transparent; color: inherit; font-weight: 700;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div id="app">
+  <div class="frame">
+    <header class="top"><div class="clap" aria-hidden="true"></div><div class="brand"><span class="brand-name">Zak Roll</span></div></header>
+    <main><section class="empty"><p>Chargement…</p></section></main>
+  </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<div id="tip" class="tip" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const root = document.getElementById("app");
+  const toastEl = document.getElementById("toast");
+
+  /* ---------- Outils ---------- */
+  const KNOWN = ["invalid_argument", "resource_exhausted", "quota_exceeded", "unavailable", "revoked",
+    "not_granted", "capability_disabled", "capability_removed", "transform_error"];
+  const TERMINAL = ["revoked", "not_granted", "capability_disabled", "capability_removed"];
+  const codeOf = (e) => (e && KNOWN.indexOf(e.code) >= 0 ? e.code : "unavailable");
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const clone = (o) => (o == null ? null : JSON.parse(JSON.stringify(o)));
+  const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ESC[c]);
+  const num = (x) => (typeof x === "number" && isFinite(x) ? x : 0);
+  const isStr = (x) => typeof x === "string" && x.length > 0;
+  const uniq = (a) => a.filter((x, i) => a.indexOf(x) === i);
+  const sameSet = (a, b) => a.length === b.length && a.every((x) => b.indexOf(x) >= 0);
+  const NB = " ";
+  function canon(x) {
+    if (Array.isArray(x)) return "[" + x.map(canon).join(",") + "]";
+    if (x && typeof x === "object") return "{" + Object.keys(x).sort().map((k) => JSON.stringify(k) + ":" + canon(x[k])).join(",") + "}";
+    return JSON.stringify(x === undefined ? null : x);
+  }
+  function safeUrl(u) {
+    try { const x = new URL(String(u || "").trim()); return x.protocol === "https:" ? x.href : ""; }
+    catch (_) { return ""; }
+  }
+  function rid(prefix) {
+    const a = new Uint8Array(7);
+    try { crypto.getRandomValues(a); } catch (_) { for (let i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256); }
+    return prefix + "-" + Array.from(a, (x) => (x % 36).toString(36)).join("");
+  }
+  function listFr(a) {
+    if (a.length <= 1) return a.join("");
+    return a.slice(0, -1).join(", ") + " et " + a[a.length - 1];
+  }
+  function trunc(s, n) {
+    s = String(s || "").replace(/\s+/g, " ").trim();
+    return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s;
+  }
+  function readHash() {
+    try { return decodeURIComponent(String(location.hash || "").replace(/^#/, "")).trim().toLowerCase(); }
+    catch (_) { return ""; }
+  }
+  const scrollTop = () => { try { window.scrollTo(0, 0); } catch (_) {} };
+  const ICON = {
+    trash: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5M10 11v5M14 11v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    copy: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>',
+    tri: '<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2 4h8L6 9z" fill="currentColor"/></svg>',
+    branch: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="6" cy="5.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="18.5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="9" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 7.7v8.6M18 11.2c0 3.5-4 3.3-9.6 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    grip: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="currentColor"><circle cx="9" cy="6" r="1.7"/><circle cx="15" cy="6" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="18" r="1.7"/><circle cx="15" cy="18" r="1.7"/></g></svg>',
+    folder: '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h4.2l2 2H19a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+    team: '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h9M18 7h2M4 17h3M11 17h9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="15.5" cy="7" r="2.3" fill="none" stroke="currentColor" stroke-width="1.9"/><circle cx="9" cy="17" r="2.3" fill="none" stroke="currentColor" stroke-width="1.9"/></svg>'
+  };
+
+  /* ---------- Texte : empreinte (coches « à refaire ») et ressemblance (numéros HK) ---------- */
+  /* @hash-start */
+  function normText(s) {
+    return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  }
+  const hashCache = new Map();
+  function th(s) {
+    const t = normText(s);
+    if (hashCache.has(t)) return hashCache.get(t);
+    let h = 0x811c9dc5;
+    for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    const out = h.toString(36);
+    hashCache.set(t, out);
+    return out;
+  }
+  /* @hash-end */
+  function lev(a, b) {
+    let prev = new Array(b.length + 1), cur = new Array(b.length + 1);
+    for (let j = 0; j <= b.length; j++) prev[j] = j;
+    for (let i = 1; i <= a.length; i++) {
+      cur[0] = i;
+      for (let j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a.charCodeAt(i - 1) === b.charCodeAt(j - 1) ? 0 : 1));
+      }
+      const t = prev; prev = cur; cur = t;
+    }
+    return prev[b.length];
+  }
+  const likeCache = new Map();
+  function likeness(a, b) {
+    const na = normText(a), nb = normText(b);
+    if (!na || !nb) return 0;
+    if (na === nb) return 1;
+    const k = na + "\u0001" + nb;
+    if (likeCache.has(k)) return likeCache.get(k);
+    const A = new Set(na.split(" ")), B = new Set(nb.split(" "));
+    let inter = 0;
+    A.forEach((w) => { if (B.has(w)) inter++; });
+    const ov = inter / Math.max(A.size, B.size);
+    const L = Math.max(na.length, nb.length);
+    const ld = Math.abs(na.length - nb.length) / L > 0.15 ? 1 : lev(na, nb) / L;
+    const out = ov >= 0.85 || ld <= 0.15 ? Math.max(ov, 1 - ld) : 0;
+    if (likeCache.size > 4000) likeCache.clear();
+    likeCache.set(k, out);
+    return out;
+  }
+
+  /* ---------- État ---------- */
+  const S = {
+    phase: "loading",            // loading | nodb | ready | revoked
+    db: null, user: null, isOwner: false, readOnly: false,
+    dl: null, dlKnown: false,    // capacité « downloads » (PDF)
+    content: null, contentJson: canon(null), contentLoaded: false,
+    progress: {}, progressLoaded: false,
+    trash: [],
+    route: readHash(),
+    pending: {},
+    ui: { fold: {}, drafts: {}, dirty: {}, fresh: {}, confirm: null, bump: null, composer: null, copied: null, linkShown: null, focusNext: null, remap: null, savedUntil: 0, envOpen: null, print: null, printOff: {}, pickOpen: {}, pdfBusy: false, verFor: null, panel: false, numEdit: null, rawEdit: null, infoOpen: {} },
+    toast: null
+  };
+
+  /* ---------- Modèle ---------- */
+  const emptyContent = () => ({ v: 2, brokers: [], scripts: [], commonDrive: "", appUrl: "" });
+  function kindOf(label) {
+    const l = String(label || "").trim();
+    if (/^cta\b/i.test(l)) return "cta";
+    if (/^(body|corps|intro|outro)\b/i.test(l)) return "body";
+    return "hook";
+  }
+  function numOfLabel(label) { const m = /(\d+)/.exec(String(label || "")); return m ? parseInt(m[1], 10) : null; }
+  function normAssign(src, dst) {
+    dst.to = Array.isArray(src.to) ? uniq(src.to.filter(isStr)) : "all";
+    dst.not = Array.isArray(src.not) ? uniq(src.not.filter(isStr)) : [];
+  }
+  function normItem(it) {
+    const o = Object.assign({}, it);
+    o.key = isStr(it.key) ? it.key : it.id;
+    o.kind = it.kind === "hook" || it.kind === "body" || it.kind === "cta" ? it.kind : kindOf(it.label);
+    if (o.kind === "hook") {
+      const n = Number(it.num);
+      o.num = Number.isFinite(n) && n > 0 ? Math.floor(n) : numOfLabel(it.label);
+      if (o.num == null) delete o.num;
+    } else delete o.num;
+    o.label = typeof it.label === "string" ? it.label : "";
+    o.text = typeof it.text === "string" ? it.text : String(it.text == null ? "" : it.text);
+    o.rev = num(it.rev);
+    o.ok = Array.isArray(it.ok) ? uniq(it.ok.filter(isStr)) : [];
+    normAssign(it, o);
+    return o;
+  }
+  function normScript(s) {
+    const o = Object.assign({}, s);
+    o.key = isStr(s.key) ? s.key : s.id;
+    o.code = typeof s.code === "string" ? s.code : "";
+    o.env = typeof s.env === "string" ? s.env : "";
+    o.title = typeof s.title === "string" ? s.title : "";
+    normAssign(s, o);
+    o.raw = s.raw && typeof s.raw === "object" && !Array.isArray(s.raw) ? Object.assign({}, s.raw) : {};
+    const src = Array.isArray(s.items) ? s.items : Array.isArray(s.clips) ? s.clips : [];
+    o.items = src.filter((it) => it && typeof it === "object" && isStr(it.id)).map(normItem);
+    delete o.clips;
+    return o;
+  }
+  function norm(c) {
+    if (!c || typeof c !== "object") return null;
+    const str = (v, d) => (typeof v === "string" ? v : v == null ? d : String(v));
+    const out = Object.assign({}, c);
+    out.v = 2;
+    out.brokers = (Array.isArray(c.brokers) ? c.brokers : [])
+      .filter((b) => b && typeof b === "object" && isStr(b.id))
+      .map((b) => Object.assign({}, b, { name: str(b.name, "") || b.id, drive: str(b.drive, "") }));
+    out.scripts = (Array.isArray(c.scripts) ? c.scripts : [])
+      .filter((s) => s && typeof s === "object" && isStr(s.id)).map(normScript);
+    out.commonDrive = str(c.commonDrive, "");
+    out.appUrl = str(c.appUrl, "");
+    delete out.order;
+    return out;
+  }
+  const C = () => S.content || emptyContent();
+  const allBids = () => C().brokers.map((b) => b.id);
+  const brokerName = (bid) => { const b = C().brokers.find((x) => x.id === bid); return b ? b.name : bid; };
+  const names = (ids) => listFr(ids.map(brokerName));
+  const findScript = (sid) => C().scripts.find((s) => s.id === sid) || null;
+  function findItem(iid) {
+    for (const s of C().scripts) { const it = s.items.find((x) => x.id === iid); if (it) return { s, it }; }
+    return null;
+  }
+
+  // Attribution : to = "all" (tout le monde sauf `not`) ou liste explicite.
+  const has = (x, b) => (Array.isArray(x.to) ? x.to.indexOf(b) >= 0 : (x.not || []).indexOf(b) < 0);
+  function include(x, b) {
+    if (Array.isArray(x.to)) { if (x.to.indexOf(b) < 0) x.to.push(b); }
+    else x.not = (x.not || []).filter((y) => y !== b);
+  }
+  function exclude(x, b) {
+    if (Array.isArray(x.to)) x.to = x.to.filter((y) => y !== b);
+    else { x.not = x.not || []; if (x.not.indexOf(b) < 0) x.not.push(b); }
+  }
+  const audOf = (n, s) => n.brokers.map((b) => b.id).filter((b) => has(s, b));
+  const holdOf = (n, s, it) => audOf(n, s).filter((b) => has(it, b));
+  const audience = (s) => audOf(C(), s);
+  const holders = (s, it) => holdOf(C(), s, it);
+  // Ce que le courtier voit : ses versions, sans les éléments encore vides.
+  function visibleItems(s, bid) {
+    const seen = {};
+    return s.items.filter((it) => { if (!has(it, bid) || seen[it.key] || !it.text.trim()) return false; seen[it.key] = 1; return true; });
+  }
+  const versionFor = (s, key, bid) => s.items.find((it) => it.key === key && has(it, bid)) || null;
+  // Nom du script : code et environnement (« test1-Car »).
+  const scriptLabel = (s) => (s.code || s.title || "script") + (s.env ? "-" + s.env : "");
+  const itemLabel = (it) => (it.kind === "hook" ? "HK" + (it.num != null ? it.num : "?") : it.label || (it.kind === "cta" ? "CTA" : "Body"));
+  const clipName = (bName, s, it) => bName + "-" + (s.code || "script") + "-HK" + (it.num != null ? it.num : "?") + (s.env ? "-" + s.env : "");
+
+  /* ---------- Coches et dépôts ---------- */
+  const pend = (k) => (Object.prototype.hasOwnProperty.call(S.pending, k) ? S.pending[k] : undefined);
+  function getCheck(bid, key) {
+    const p = pend("c|" + bid + "|" + key);
+    if (p) return p.val;
+    const d = S.progress[bid];
+    const v = d && d.checks && typeof d.checks === "object" ? d.checks[key] : null;
+    return v && typeof v === "object" ? v : null;
+  }
+  // Une coche reste bonne tant que le texte du hook n'a pas changé (ou si Édouard a gardé les coches).
+  function checkOk(c, it) {
+    if (!c) return false;
+    if (c.h != null) return c.h === th(it.text) || (it.ok || []).indexOf(c.h) >= 0;
+    return num(c.rev) >= num(it.rev);
+  }
+  const isDone = (bid, it) => checkOk(getCheck(bid, it.key), it);
+  const isRedo = (bid, it) => { const c = getCheck(bid, it.key); return !!c && !checkOk(c, it); };
+  function stats(bid) {
+    let total = 0, done = 0;
+    for (const s of C().scripts) {
+      if (!has(s, bid)) continue;
+      for (const it of visibleItems(s, bid)) {
+        if (it.kind !== "hook") continue;
+        total++;
+        if (isDone(bid, it)) done++;
+      }
+    }
+    return { total, done, left: total - done };
+  }
+  function brokerLink(bid) {
+    const base = safeUrl(S.content && S.content.appUrl);
+    return base ? base.split("#")[0] + "#" + bid : "";
+  }
+  function currentBroker() {
+    const c = S.content;
+    if (!c || !S.route) return null;
+    return c.brokers.find((b) => b.id === S.route) || null;
+  }
+
+  /* ---------- Numéros HK, codes, environnements ---------- */
+  function trashItems() {
+    const out = [];
+    S.trash.forEach((t) => {
+      try {
+        if ((t.kind === "item" || t.kind === "clip") && t.item && isStr(t.item.id)) out.push(normItem(t.item));
+        if (t.kind === "script" && t.item && isStr(t.item.id)) normScript(t.item).items.forEach((it) => out.push(it));
+      } catch (_) {}
+    });
+    return out;
+  }
+  function allHooks(withTrash) {
+    const out = [];
+    C().scripts.forEach((s) => s.items.forEach((it) => { if (it.kind === "hook") out.push(it); }));
+    if (withTrash) trashItems().forEach((it) => { if (it.kind === "hook") out.push(it); });
+    return out;
+  }
+  function nextFreeNum(extra, excludeKey) {
+    let max = 0;
+    allHooks(true).forEach((it) => { if (it.key !== excludeKey && num(it.num) > max) max = it.num; });
+    (extra || []).forEach((n) => { if (n > max) max = n; });
+    return max + 1;
+  }
+  function similarHook(text, excludeKey) {
+    if (!normText(text)) return null;
+    let best = null;
+    allHooks(false).forEach((it) => {
+      if (it.key === excludeKey || it.num == null) return;
+      const sc = likeness(text, it.text);
+      if (sc > 0 && (!best || sc > best.score)) best = { num: it.num, text: it.text, score: sc, key: it.key };
+    });
+    return best;
+  }
+  function suggestCode(typed, excludeSid) {
+    const t = String(typed || "").trim();
+    if (!t) return "";
+    const m = /^(.*?)(\d+)$/.exec(t);
+    const base = m ? m[1] : t;
+    if (!base) return "";
+    const codes = C().scripts.filter((s) => s.id !== excludeSid).map((s) => s.code);
+    S.trash.forEach((x) => { if (x.kind === "script" && x.item && isStr(x.item.code)) codes.push(x.item.code); });
+    let max = 0;
+    codes.filter(isStr).forEach((c) => {
+      const mm = /^(.*?)(\d+)$/.exec(c);
+      if (mm && mm[1].toLowerCase() === base.toLowerCase()) max = Math.max(max, parseInt(mm[2], 10));
+    });
+    if (!max && m) return "";
+    const sug = base + (max + 1);
+    return sug === t ? "" : sug;
+  }
+  const ENV_DEFAULT = ["Car", "Nad", "Bureau", "Home", "Dehors"];
+  function envList() {
+    const seen = {}, out = [];
+    ENV_DEFAULT.concat(C().scripts.map((s) => s.env)).forEach((e) => {
+      if (!isStr(e)) return;
+      const k = e.toLowerCase();
+      if (!seen[k]) { seen[k] = 1; out.push(e); }
+    });
+    return out;
+  }
+
+  /* Coller un script dans un hook vide : « HK1 » sur sa ligne, le texte dessous, une ligne vide entre les blocs. */
+  const LABEL_ONLY = /^(?:hk|hook|body|corps|cta|intro|outro)\s*#?\s*\d{0,3}[a-z]?\s*[:.\-–—]?$/i;
+  const LABEL_INLINE = /^((?:hk|hook|body|corps|cta|intro|outro)\s*#?\s*\d{0,3}[a-z]?)\s*[:\-–—]\s*(\S.*)$/i;
+  function cleanLabel(s) {
+    s = s.replace(/[:.\-–—\s]+$/, "").replace(/\s+/g, " ").trim();
+    return s.replace(/^hk\s*#?\s*/i, "HK").replace(/^cta\b/i, "CTA").slice(0, 24);
+  }
+  function parseScript(raw) {
+    const out = [];
+    let cur = null, blank = false;
+    const push = () => { if (cur && cur.text.trim()) out.push({ label: cur.label, text: cur.text.trim() }); cur = null; };
+    for (const rawLine of String(raw || "").replace(/\r\n?/g, "\n").split("\n")) {
+      const line = rawLine.trim();
+      if (!line) { blank = true; continue; }
+      let m;
+      if (LABEL_ONLY.test(line)) {
+        if (cur && cur.text.trim()) push();
+        cur = { label: cleanLabel(line), text: "" };
+      } else if ((m = LABEL_INLINE.exec(line))) {
+        push();
+        cur = { label: cleanLabel(m[1]), text: m[2] };
+      } else {
+        if (cur && blank && cur.text && !cur.label) push();
+        if (!cur) cur = { label: "", text: "" };
+        cur.text = cur.text ? cur.text + "\n" + line : line;
+      }
+      blank = false;
+    }
+    push();
+    return out.map((k) => {
+      const kind = k.label ? kindOf(k.label) : "hook";
+      return { kind, label: kind === "hook" ? "" : k.label || (kind === "cta" ? "CTA" : "Body"), text: k.text };
+    });
+  }
+  function proposeNums(parsed, excludeKey) {
+    const used = [];
+    let next = nextFreeNum(null, excludeKey);
+    return parsed.map((k) => {
+      if (k.kind !== "hook") return null;
+      const sim = similarHook(k.text, excludeKey);
+      let p;
+      if (sim) p = sim.num;
+      else { while (used.indexOf(next) >= 0) next++; p = next++; }
+      used.push(p);
+      return p;
+    });
+  }
+
+  /* ---------- Opérations sur le contenu (sur une copie `n`) ---------- */
+  // Retire les versions que plus personne n'a, mais garde toujours au moins une version de l'élément.
+  function pruneSlot(n, s, key) {
+    const vs = s.items.filter((x) => x.key === key);
+    const live = vs.filter((x) => (Array.isArray(x.to) ? x.to.length > 0 : n.brokers.some((b) => (x.not || []).indexOf(b.id) < 0)));
+    const keep = live.length ? live : vs.slice(0, 1);
+    s.items = s.items.filter((x) => x.key !== key || keep.indexOf(x) >= 0);
+  }
+  function simplify(n, s, key) {
+    const vs = s.items.filter((x) => x.key === key);
+    if (vs.length !== 1 || !Array.isArray(vs[0].to)) return;
+    const aud = audOf(n, s);
+    if (aud.length && sameSet(holdOf(n, s, vs[0]), aud)) { vs[0].to = "all"; vs[0].not = []; }
+  }
+  function applyPatch(x, p) {
+    if (p.text != null && p.text !== x.text) {
+      if (th(p.text) !== th(x.text)) { x.rev = num(x.rev) + 1; x.ok = []; }
+      x.text = p.text;
+    }
+    if (p.num != null) x.num = p.num;
+    if (p.label != null) x.label = p.label;
+    if (p.kind) x.kind = p.kind;
+  }
+  function baseVersion(vs) { return vs.find((x) => !Array.isArray(x.to)) || vs[0]; }
+
+  // Glisser-déposer d'un élément dans son groupe : avant `beforeKey` (sinon après `afterKey`). Ordre unique pour tous.
+  function opMoveItem(n, sid, key, beforeKey, afterKey) {
+    const s = n.scripts.find((x) => x.id === sid);
+    if (!s) return false;
+    const slots = [], index = {};
+    s.items.forEach((x) => { if (!(x.key in index)) { index[x.key] = slots.length; slots.push([]); } slots[index[x.key]].push(x); });
+    if (!(key in index)) return false;
+    const moving = slots[index[key]];
+    const rest = slots.filter((sl) => sl !== moving);
+    let at = beforeKey ? rest.findIndex((sl) => sl[0].key === beforeKey) : -1;
+    if (at < 0 && afterKey) { const j = rest.findIndex((sl) => sl[0].key === afterKey); if (j >= 0) at = j + 1; }
+    if (at < 0) return false;
+    rest.splice(at, 0, moving);
+    s.items = [].concat.apply([], rest);
+    return true;
+  }
+  function moveIn(arr, id, beforeId, afterId) {
+    const i = arr.indexOf(id);
+    if (i < 0) return false;
+    const rest = arr.slice(0, i).concat(arr.slice(i + 1));
+    let at = beforeId ? rest.indexOf(beforeId) : -1;
+    if (at < 0 && afterId) { const j = rest.indexOf(afterId); if (j >= 0) at = j + 1; }
+    if (at < 0) return false;
+    rest.splice(at, 0, id);
+    if (rest.every((x, k) => x === arr[k])) return false;
+    rest.forEach((x, k) => { arr[k] = x; });
+    return true;
+  }
+  // Ordre des scripts : un seul ordre, pour tout le monde.
+  function opMoveScript(n, sid, beforeSid, afterSid) {
+    const ids = n.scripts.map((s) => s.id);
+    if (!moveIn(ids, sid, beforeSid, afterSid)) return false;
+    const byId = {};
+    n.scripts.forEach((s) => { byId[s.id] = s; });
+    n.scripts = ids.map((id) => byId[id]);
+    return true;
+  }
+  // Pastille d'un élément : donne ou enlève CETTE version à ce courtier (il garde une seule version par élément).
+  function opPill(n, iid, bid) {
+    for (const s of n.scripts) {
+      const v = s.items.find((x) => x.id === iid);
+      if (!v) continue;
+      if (!has(s, bid)) return false;
+      const vs = s.items.filter((x) => x.key === v.key);
+      const held = vs.find((x) => has(x, bid));
+      if (held === v) exclude(v, bid);
+      else { vs.forEach((x) => { if (x !== v) exclude(x, bid); }); include(v, bid); }
+      pruneSlot(n, s, v.key);
+      simplify(n, s, v.key);
+      return { removed: held === v };
+    }
+    return false;
+  }
+  // Pastille d'un script : retiré de ce courtier seul, ou donné avec tout ce que le script donne « à tous ».
+  function opScriptPill(n, sid, bid) {
+    const s = n.scripts.find((x) => x.id === sid);
+    if (!s) return false;
+    if (has(s, bid)) { exclude(s, bid); return { removed: true }; }
+    include(s, bid);
+    uniq(s.items.map((x) => x.key)).forEach((k) => {
+      const held = s.items.filter((x) => x.key === k && has(x, bid));
+      held.slice(1).forEach((x) => exclude(x, bid));
+    });
+    return { removed: false };
+  }
+  // « Version pour… » : une nouvelle version (copie du texte) pour ce courtier, juste sous l'élément ; même numéro HK.
+  function opNewVersion(n, iid, bid) {
+    for (const s of n.scripts) {
+      const v = s.items.find((x) => x.id === iid);
+      if (!v) continue;
+      if (!has(s, bid)) return false;
+      const vs = s.items.filter((x) => x.key === v.key);
+      const nv = Object.assign(clone(v), { id: rid("i"), to: [bid], not: [] });
+      vs.forEach((x) => exclude(x, bid));
+      s.items.splice(s.items.indexOf(vs[vs.length - 1]) + 1, 0, nv);
+      pruneSlot(n, s, v.key);
+      return nv.id;
+    }
+    return false;
+  }
+
+  /* ---------- Rendu ---------- */
+  let renderTimer = 0, ptrDown = false, ptrAt = 0, owed = false, rendering = false;
+  const DND = { st: null };
+  function scheduleRender() {
+    if (renderTimer) return;
+    renderTimer = setTimeout(() => {
+      renderTimer = 0;
+      if (DND.st || (ptrDown && Date.now() - ptrAt < 1500)) { owed = true; return; }
+      render();
+    }, 0);
+  }
+  function payDebt() { if (owed) { owed = false; render(); } }
+  window.addEventListener("pointerdown", () => { ptrDown = true; ptrAt = Date.now(); }, true);
+  window.addEventListener("pointerup", () => { ptrDown = false; if (owed) setTimeout(payDebt, 120); }, true);
+  window.addEventListener("pointercancel", () => { ptrDown = false; payDebt(); }, true);
+  window.addEventListener("click", () => { if (owed) setTimeout(payDebt, 0); }, true);
+
+  function render() {
+    const a = document.activeElement;
+    let keep = null;
+    if (a && a !== document.body && a.id && root.contains(a)) {
+      keep = { id: a.id, s: null, e: null };
+      try { if (typeof a.selectionStart === "number") { keep.s = a.selectionStart; keep.e = a.selectionEnd; } } catch (_) {}
+    }
+    if (keep && S.ui.remap && S.ui.remap.from === keep.id) keep.id = S.ui.remap.to;
+    S.ui.remap = null;
+    rendering = true;
+    try { root.innerHTML = view(); } finally { rendering = false; }
+    root.querySelectorAll("textarea.auto").forEach(autosize);
+    root.querySelectorAll("input.tin").forEach(fitInput);
+    const want = S.ui.focusNext || (keep && keep.id);
+    S.ui.focusNext = null;
+    if (want) {
+      const el = document.getElementById(want);
+      if (el) {
+        try { el.focus({ preventScroll: true }); } catch (_) {}
+        if (keep && want === keep.id && keep.s != null) { try { el.setSelectionRange(keep.s, keep.e); } catch (_) {} }
+        else if (el.tagName === "TEXTAREA") { try { const n = el.value.length; el.setSelectionRange(n, n); } catch (_) {} }
+      }
+    }
+  }
+  function autosize(t) { t.style.height = "auto"; t.style.height = t.scrollHeight + 3 + "px"; }
+
+  function header(right, left) {
+    return `<header class="top"><div class="clap" aria-hidden="true"></div><div class="brand">${left || `<span class="brand-name">Zak Roll</span>`}${right || ""}</div></header>`;
+  }
+  const shell = (inner, wide, right, left) => `<div class="frame${wide ? " wide" : ""}">${header(right, left)}${inner}</div>`;
+  const backLink = () => `<button type="button" class="lnk back" id="b-home" data-act="home"><span aria-hidden="true">←</span> Courtiers</button>`;
+  const msg = (t) => `<main><section class="empty"><p>${t}</p></section></main>`;
+
+  function view() {
+    if (S.phase === "nodb") return shell(msg("Connecte-toi à Claude avec le courriel invité pour voir ta liste."));
+    if (S.phase === "revoked") return shell(msg("Liste indisponible. Recharge la page."));
+    if (S.phase !== "ready" || !S.contentLoaded || !S.progressLoaded) return shell(msg("Chargement…"));
+    if (S.isOwner && S.ui.panel) return panelView();
+    if (S.isOwner && S.route === "tous") return allView();
+    const b = currentBroker();
+    if (b) return brokerView(b);
+    return homeView();
+  }
+
+  /* ----- Accueil ----- */
+  function homeView() {
+    const brokers = C().brokers;
+    let inner;
+    if (!brokers.length) inner = `<section class="empty"><p>${S.isOwner ? "Aucun courtier." : "Rien pour l'instant."}</p></section>`;
+    else {
+      let all = "";
+      if (S.isOwner) {
+        const t = brokers.reduce((a, b) => { const st = stats(b.id); a.done += st.done; a.total += st.total; return a; }, { done: 0, total: 0 });
+        const pct = t.total ? Math.round((t.done / t.total) * 100) : 0, left = t.total - t.done;
+        all = `<button type="button" class="ccard tous${t.total && !left ? " is-complete" : ""}" id="b-go-tous" data-act="go" data-id="tous" aria-label="Tous${NB}: ${left} à faire">
+          <span class="cname">Tous</span><span class="bar" aria-hidden="true"><i style="width:${pct}%"></i></span><span class="cstate">${t.total && !left ? "Complété" : left + " à faire"}</span></button>`;
+      }
+      inner = `<div class="cgrid">${all}${brokers.map((b) => {
+        const st = stats(b.id);
+        const complete = st.total > 0 && st.left === 0;
+        const pct = st.total ? Math.round((st.done / st.total) * 100) : 0;
+        const state = complete ? "Complété" : st.left + " à faire";
+        return `<button type="button" class="ccard${complete ? " is-complete" : ""}" id="b-go-${esc(b.id)}" data-act="go" data-id="${esc(b.id)}" aria-label="${esc(b.name)}${NB}: ${esc(state.toLowerCase())}">
+          <span class="cname">${esc(b.name)}</span>
+          <span class="bar" aria-hidden="true"><i style="width:${pct}%"></i></span>
+          <span class="cstate">${esc(state)}</span>
+        </button>`;
+      }).join("")}</div>`;
+    }
+    const unknown = S.route && !brokers.some((b) => b.id === S.route) && !(S.isOwner && S.route === "tous");
+    const note = unknown ? `<p class="note">Lien inconnu${NB}: #${esc(S.route)}</p>` : "";
+    return shell(`<main class="home">${note}<h1 class="hi">Courtiers</h1>${inner}</main>`, false, homeTools());
+  }
+
+  /* ----- Page d'un courtier, et vue « Tous » (propriétaire) ----- */
+  // Préférences de cet appareil : la vue (Cartes / Texte) et les bulles ouvertes ou fermées.
+  const VIEW_KEY = "clapZak.vue", BUB_KEY = "clapZak.bulles";
+  function readPref(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (_) { return null; } }
+  function writePref(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
+  let viewMode = readPref(VIEW_KEY) === "texte" ? "texte" : "cartes";
+  let bub = (() => { const o = readPref(BUB_KEY); return o && typeof o === "object" && !Array.isArray(o) ? o : {}; })();
+
+  // Ordre de lecture : les hooks, puis le body, puis le CTA.
+  function ordered(items) {
+    const rank = (it) => (it.kind === "hook" ? 0 : it.kind === "body" ? 1 : 2);
+    return items.map((it, i) => [it, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map((x) => x[0]);
+  }
+  function scriptDone(bid, items) {
+    const hooks = items.filter((it) => it.kind === "hook");
+    const n = hooks.filter((it) => isDone(bid, it)).length;
+    return { n, total: hooks.length, done: hooks.length > 0 && n === hooks.length };
+  }
+  // La version de chaque élément pour ce courtier, éléments encore vides compris (édition).
+  function heldItems(s, bid) {
+    const seen = {};
+    return s.items.filter((it) => { if (!has(it, bid) || seen[it.key]) return false; seen[it.key] = 1; return true; });
+  }
+  // La première version de chaque élément (vue « Tous »).
+  function mainItems(s) {
+    const seen = {};
+    return s.items.filter((it) => { if (seen[it.key]) return false; seen[it.key] = 1; return true; });
+  }
+  // Le propriétaire édite en place, dans les deux vues ; le courtier lit et coche.
+  const editing = () => S.isOwner;
+  const isAll = () => S.isOwner && S.route === "tous";
+  // Contexte : le courtier de la page, ou null dans la vue « Tous ».
+  const ctxB = () => (isAll() ? null : currentBroker());
+  // Scripts affichés : ceux du courtier (b) ou tous (b = null). Seule la première bulle « À faire » est ouverte par défaut.
+  function scriptList(b) {
+    const ed = editing();
+    const src = b ? C().scripts.filter((s) => has(s, b.id)) : C().scripts;
+    const list = src.map((s) => ({
+      s,
+      items: ordered(b ? visibleItems(s, b.id) : mainItems(s).filter((it) => it.text.trim())),
+      held: ed ? ordered(b ? heldItems(s, b.id) : mainItems(s)) : null
+    })).filter((x) => !b || x.items.length || (x.held && x.held.length));
+    list.forEach((x) => { x.st = b ? scriptDone(b.id, x.items) : { n: 0, total: x.items.filter((it) => it.kind === "hook").length, done: false }; });
+    const firstTodo = list.find((x) => !x.st.done), who = b ? b.id : "tous";
+    list.forEach((x) => {
+      x.def = x === firstTodo;
+      const v = bub[who + "|" + x.s.id];
+      x.open = v && typeof v === "object" && v.d === (x.st.done ? 1 : 0) ? v.o === 1 : x.def;
+    });
+    return list;
+  }
+  const brokerScripts = (b) => scriptList(b);
+  function toggleBub(sid) {
+    const b = ctxB();
+    if (!b && !isAll()) return;
+    const x = scriptList(b).find((y) => y.s.id === sid);
+    if (!x) return;
+    const k = (b ? b.id : "tous") + "|" + sid, open = !x.open;
+    if (open === x.def) delete bub[k]; else bub[k] = { o: open ? 1 : 0, d: x.st.done ? 1 : 0 };
+    writePref(BUB_KEY, bub);
+    render();
+  }
+  function ensureOpen(sid) {
+    const b = ctxB();
+    if (!b && !isAll()) return;
+    const x = scriptList(b).find((y) => y.s.id === sid);
+    if (!x || x.open) return;
+    bub[(b ? b.id : "tous") + "|" + sid] = { o: 1, d: x.st.done ? 1 : 0 };
+    writePref(BUB_KEY, bub);
+  }
+
+  function isOpen(it, done) { return Object.prototype.hasOwnProperty.call(S.ui.fold, it.id) ? S.ui.fold[it.id] : !done; }
+  const triBtn = (act, id, open, aria) => `<button type="button" class="tribtn" id="${act === "sfold" ? "sb" : "fold"}-${esc(id)}" data-act="${act}" data-id="${esc(id)}" aria-expanded="${open}" aria-label="${esc(aria || "Ouvrir ou fermer")}"><span class="tri">${ICON.tri}</span></button>`;
+  const tickBox = (b, s, it, done, idp, cls) => `<input type="checkbox"${cls ? ` class="${cls}"` : ""} id="${esc(idp + it.id)}" data-act="check" data-sid="${esc(s.id)}" data-iid="${esc(it.id)}"${done ? " checked" : ""}${S.readOnly ? " disabled" : ""} aria-label="${esc(clipName(b.name, s, it))}${NB}: tourné">`;
+  // Carte (courtier) : l'en-tête entier ouvre ou ferme.
+  function itemCard(b, s, it) {
+    const isHook = it.kind === "hook";
+    const done = isHook && isDone(b.id, it);
+    const redo = isHook && !done && isRedo(b.id, it);
+    const open = isOpen(it, done);
+    const head = `<div class="tag"><span class="slate">${esc(itemLabel(it))}</span>${isHook ? `<span class="fname">${esc(clipName(b.name, s, it))}</span>` : `<span class="fname"></span>`}${redo ? `<span class="pill warn">À refaire</span>` : ""}<span class="tri">${ICON.tri}</span></div>`;
+    const body = `<div class="cbody" id="fold-${esc(it.id)}" role="button" tabindex="0" aria-expanded="${open}" data-act="fold" data-id="${esc(it.id)}">${head}${open ? `<p class="txt">${esc(it.text)}</p>` : ""}</div>`;
+    if (!isHook) return `<article class="clip read${open ? " open" : ""}">${body}</article>`;
+    return `<article class="clip${done ? " is-done" : ""}${redo ? " is-redo" : ""}${open ? " open" : ""}">${body}
+      <label class="tick" for="${esc("ck-" + it.id)}">${tickBox(b, s, it, done, "ck-")}</label>
+    </article>`;
+  }
+  function depositBtn(b, s) {
+    const link = safeUrl(s.raw[b.id]) || safeUrl(b.drive);
+    return link ? `<a class="btn dep" id="b-dep-${esc(s.id)}" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Déposer mes vidéos <span aria-hidden="true">↗</span></a>` : "";
+  }
+  function scriptBubble(b, x) {
+    if (editing()) return ownerBubble(b, x);
+    const s = x.s;
+    const cls = `sbub${x.st.done ? " is-done" : ""}${x.open ? " open" : ""}`;
+    const head = `<button type="button" class="sbhd" id="sb-${esc(s.id)}" data-act="sfold" data-id="${esc(s.id)}" aria-expanded="${x.open}"><span class="slate big">${esc(scriptLabel(s))}</span><span class="frac">${x.st.n}/${x.st.total}</span><span class="tri">${ICON.tri}</span></button>`;
+    const inner = viewMode === "texte" ? `<div class="doc">${x.items.map((it) => textBlock(b, s, it, true)).join("")}</div>`
+      : `<div class="cards">${x.items.map((it) => itemCard(b, s, it)).join("")}</div>`;
+    return `<section class="${cls}" aria-label="${esc(scriptLabel(s))}">${head}${x.open ? `<div class="sbin">${inner}${depositBtn(b, s)}</div>` : ""}</section>`;
+  }
+  // Vue Texte : l'étiquette sur sa ligne (case devant pour un hook, triangle après), le texte dessous.
+  // `live` = page du courtier (case + pliage, même état que les cartes) ; sinon simple aperçu.
+  function textBlock(b, s, it, live) {
+    const isHook = it.kind === "hook";
+    const done = live && isHook && isDone(b.id, it);
+    const redo = live && isHook && !done && isRedo(b.id, it);
+    const open = live ? isOpen(it, done) : true;
+    const box = live && isHook ? tickBox(b, s, it, done, "dk-", "dck") : "";
+    const lab = live
+      ? `<span class="dfold" id="dfold-${esc(it.id)}" role="button" tabindex="0" aria-expanded="${open}" data-act="fold" data-id="${esc(it.id)}"><span class="dlab">${esc(itemLabel(it))}</span><span class="tri">${ICON.tri}</span></span>`
+      : `<span class="dlab">${esc(itemLabel(it))}</span>`;
+    return `<div class="dblk${done ? " is-done" : ""}${redo ? " is-redo" : ""}${open ? " open" : ""}"><p class="dhead">${box}${lab}</p>${open ? `<p class="dtxt">${esc(it.text)}</p>` : ""}</div>`;
+  }
+  // Version imprimable : on choisit d'abord les scripts (tous cochés par défaut) ; un triangle montre le texte.
+  const printPicked = (list) => list.filter((x) => !S.ui.printOff[x.s.id]);
+  function pickView(b, list) {
+    const n = printPicked(list).length, busy = S.ui.pdfBusy;
+    const rows = list.map((x) => {
+      const s = x.s, open = !!S.ui.pickOpen[s.id];
+      const state = b ? `<span class="pst${x.st.done ? " ok" : ""}">${x.st.n}/${x.st.total}${x.st.done ? " · Terminé" : ""}</span>` : "";
+      return `<div class="pick${open ? " open" : ""}"><div class="prow"><label class="plabel"><input type="checkbox" class="dck" id="ps-${esc(s.id)}" data-act="psel" data-id="${esc(s.id)}"${S.ui.printOff[s.id] ? "" : " checked"}><span class="slate big">${esc(scriptLabel(s))}</span>${state}</label><button type="button" class="ptri" id="pt-${esc(s.id)}" data-act="pick-fold" data-id="${esc(s.id)}" aria-expanded="${open}" aria-label="Voir ${esc(scriptLabel(s))}"><span class="tri">${ICON.tri}</span></button></div>${open ? `<div class="pprev">${x.items.map((it) => textBlock(b, s, it, false)).join("")}</div>` : ""}</div>`;
+    }).join("");
+    const off = n && !busy ? "" : " disabled";
+    const btns = `<button type="button" class="btn" id="b-pprint" data-act="print-go"${off}>Imprimer</button>`
+      + (S.dl ? `<button type="button" class="btn" id="b-pdf" data-act="pdf"${off}>Télécharger le PDF</button>` : "");
+    return `<div class="frame"><div class="pbar"><button type="button" class="lnk back" id="b-pback" data-act="print-close"><span aria-hidden="true">←</span> Retour</button></div><main><div class="picks">${rows}</div><div class="pgo">${btns}</div></main></div>`;
+  }
+  // « Imprimer » : hors cadre, la vue Impression puis window.print() ; dans le lecteur claude.ai (cadre), le PDF.
+  function printGo() {
+    let framed = true;
+    try { framed = window.top !== window; } catch (_) { framed = true; }
+    if (!framed) {
+      S.ui.print = "view";
+      render();
+      scrollTop();
+      setTimeout(() => { try { window.print(); } catch (_) {} }, 80);
+    } else if (S.dl) savePdf("Le PDF s'ouvre" + NB + ": imprime-le de là.");
+    else { S.ui.print = "view"; render(); scrollTop(); }
+  }
+  // Vue Impression : noir sur blanc, sans contrôle, un script par page.
+  function printView(b, list) {
+    const right = S.dl
+      ? `<button type="button" class="btn sm" id="b-pdf" data-act="pdf"${S.ui.pdfBusy ? " disabled" : ""}>Télécharger le PDF</button>`
+      : S.dlKnown ? `<p class="pnote">Imprimer depuis le menu de ton navigateur</p>` : "";
+    const doc = list.map((x) => `<section class="psec"><h2 class="ph">${esc(scriptLabel(x.s))}</h2>${x.items.map((it) =>
+      `<p class="plab">${esc(itemLabel(it))}</p><p class="ptxt">${esc(it.text)}</p>`).join("")}</section>`).join("");
+    return `<div class="frame"><div class="pbar noprint"><button type="button" class="lnk back" id="b-pback" data-act="print-close"><span aria-hidden="true">←</span> Retour</button>${right}</div><main class="pdoc">${doc}</main></div>`;
+  }
+  const viewBar = (show, canPrint) => (show ? `<div class="vbar"><div class="seg" role="group" aria-label="Vue">${[["cartes", "Cartes"], ["texte", "Texte"]].map((m) =>
+    `<button type="button" class="segb" id="v-${m[0]}" data-act="view" data-id="${m[0]}" aria-pressed="${viewMode === m[0]}">${m[1]}</button>`).join("")}</div>${canPrint ? `<button type="button" class="lnk subtle" id="b-print" data-act="print-open">Version imprimable</button>` : ""}</div>` : "");
+  const newScriptBtn = () => `<button type="button" class="plus" id="b-new-script" data-act="new-script" aria-label="Nouveau script">+</button>`;
+  function brokerView(b) {
+    const list = scriptList(b);
+    const readList = list.filter((x) => x.items.length);
+    if (S.ui.print === "pick") return pickView(b, readList);
+    if (S.ui.print === "view") return printView(b, printPicked(readList));
+    const ed = editing();
+    const sect = (t, a, extra) => (a.length || extra
+      ? `<h2 class="sect">${t}</h2><div class="slist"${ed ? ' data-dnd="script"' : ""}>${a.map((x) => scriptBubble(b, x)).join("")}</div>${extra || ""}` : "");
+    const st = stats(b.id);
+    const pct = st.total ? Math.round((st.done / st.total) * 100) : 0;
+    const hero = `<section class="hero"><h1 class="hi">${esc(b.name)}</h1>
+      <div class="meter"><div class="bar" role="progressbar" aria-label="Hooks tournés" aria-valuemin="0" aria-valuemax="${st.total}" aria-valuenow="${st.done}"><i style="width:${pct}%"></i></div><span class="frac">${st.done}/${st.total}</span></div></section>`;
+    const ro = S.readOnly ? `<p class="banner" role="status">Lecture seule${NB}: tes coches ne s'enregistrent pas.</p>` : "";
+    const body = sect("À faire", list.filter((x) => !x.st.done), ed ? newScriptBtn() : "") + sect("Terminé", list.filter((x) => x.st.done));
+    return shell(`${ro}<main>${hero}${viewBar(list.length || ed, readList.length)}${body}</main>`, false, savedTag(), backLink());
+  }
+  // Vue « Tous » (propriétaire) : l'avancement de chacun, puis tous les scripts et toutes leurs versions.
+  function allView() {
+    const list = scriptList(null);
+    const readList = list.filter((x) => x.items.length);
+    if (S.ui.print === "pick") return pickView(null, readList);
+    if (S.ui.print === "view") return printView(null, printPicked(readList));
+    const bars = C().brokers.map((b) => {
+      const st = stats(b.id), pct = st.total ? Math.round((st.done / st.total) * 100) : 0;
+      return `<button type="button" class="arow${st.total && !st.left ? " is-complete" : ""}" id="b-ar-${esc(b.id)}" data-act="go" data-id="${esc(b.id)}"><span class="aname">${esc(b.name)}</span><span class="bar" aria-hidden="true"><i style="width:${pct}%"></i></span><span class="frac">${st.done}/${st.total}</span></button>`;
+    }).join("");
+    const hero = `<section class="hero"><h1 class="hi">Tous</h1><div class="abars">${bars}</div></section>`;
+    return shell(`<main>${hero}${viewBar(true, readList.length)}<div class="slist" data-dnd="script">${list.map((x) => ownerBubble(null, x)).join("")}</div>${newScriptBtn()}</main>`, false, savedTag(), backLink());
+  }
+
+  /* ----- PDF (jsPDF, polices de base : texte seulement) ----- */
+  function pdfSafe(s) {
+    return String(s == null ? "" : s)
+      .replace(/[‘’‚ʼ′]/g, "'").replace(/[“”„]/g, '"')
+      .replace(/[    ]/g, " ").replace(/…/g, "...").replace(/[‐-―−]/g, "-")
+      .replace(/œ/g, "oe").replace(/Œ/g, "OE").replace(/€/g, "EUR")
+      .replace(/[^\t\n\r\x20-\x7E -ÿ]/g, "");
+  }
+  function makePdf(list) {
+    const J = window.jspdf && window.jspdf.jsPDF;
+    if (typeof J !== "function") throw { code: "nolib" };
+    const doc = new J({ unit: "pt", format: "letter" });
+    const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 54, maxW = W - 2 * M;
+    list.forEach((x, si) => {
+      if (si) doc.addPage();
+      let y = M;
+      const room = (h) => { if (y + h > H - M) { doc.addPage(); y = M; } };
+      doc.setFont("helvetica", "bold"); doc.setFontSize(24);
+      doc.text(pdfSafe(scriptLabel(x.s)), M, y + 20);
+      y += 46;
+      x.items.forEach((it) => {
+        room(16 + 20);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+        doc.text(pdfSafe(itemLabel(it)), M, y + 9);
+        y += 17;
+        doc.setFont("helvetica", "normal"); doc.setFontSize(14);
+        doc.splitTextToSize(pdfSafe(it.text), maxW).forEach((ln) => { room(20); doc.text(ln, M, y + 14); y += 20; });
+        y += 16;
+      });
+    });
+    return doc.output("arraybuffer");
+  }
+  async function savePdf(after) {
+    const b = ctxB();
+    if ((!b && !isAll()) || !S.dl || S.ui.pdfBusy) return;
+    S.ui.pdfBusy = true;
+    render();
+    try {
+      const list = printPicked(scriptList(b).filter((x) => x.items.length));
+      if (!list.length) return;
+      const data = makePdf(list);
+      await S.dl.save({ filename: (b ? b.name : "Tous") + " - scripts.pdf", data });
+      if (after) showToast(after, null, 6000);
+    } catch (e) {
+      const c = e && e.code;
+      if (c === "nolib") showToast("PDF indisponible. Imprime depuis le menu de ton navigateur.", null, 6000);
+      else if (c === "declined") { /* le courtier a dit non */ }
+      else if (c === "rate_limited") showToast("Un téléchargement attend déjà ta réponse.", null, 4000);
+      else if (c === "too_large") showToast("PDF trop gros.", null, 4000);
+      else if (c === "unavailable" || c === "not_granted" || c === "capability_disabled" || c === "capability_removed") {
+        S.dl = null;
+        showToast("Téléchargement indisponible ici.", null, 4000);
+      } else showToast("PDF non créé.", null, 4000);
+    } finally {
+      S.ui.pdfBusy = false;
+      render();
+    }
+  }
+
+  /* ----- Édition en place (Édouard seulement) ----- */
+  function field(f, id, value, tag, cls, aria, extra) {
+    const key = f + ":" + id;
+    const v = S.ui.dirty[key] ? S.ui.dirty[key].value : value;
+    const domId = "f-" + f + "-" + id;
+    if (tag === "textarea") return `<textarea class="${cls} auto" id="${esc(domId)}" data-field="${f}" data-id="${esc(id)}" rows="1" aria-label="${esc(aria)}"${extra || ""}>${esc(v)}</textarea>`;
+    return `<input class="${cls}" id="${esc(domId)}" data-field="${f}" data-id="${esc(id)}" value="${esc(v)}" aria-label="${esc(aria)}" autocomplete="off"${extra || ""}>`;
+  }
+  const fval = (f, id, saved) => (S.ui.dirty[f + ":" + id] ? S.ui.dirty[f + ":" + id].value : saved);
+  const ib = (act, id, sym, aria, dis, cls) =>
+    `<button type="button" class="ib${cls ? " " + cls : ""}" id="b-${act}-${esc(id)}" data-act="${act}" data-id="${esc(id)}" aria-label="${esc(aria)}" title="${esc(aria)}"${dis ? " disabled" : ""}>${sym}</button>`;
+
+  const savedTag = () => (S.isOwner ? `<span class="saved${Date.now() < S.ui.savedUntil ? " on" : ""}" id="saved" aria-live="polite">Enregistré</span>` : "");
+  const homeTools = () => (S.isOwner ? `<button type="button" class="ib" id="b-panel" data-act="panel" aria-label="Équipe et corbeille" title="Équipe et corbeille">${ICON.team}</button>` : "");
+  // Poignée de glisser-déposer (souris, doigt après un appui long ; flèches ↑ ↓ au clavier).
+  const grip = (kind, id) => `<button type="button" class="grip" id="gr-${kind}-${esc(id)}" data-grip="${kind}" aria-label="${kind === "script" ? "Déplacer le script" : "Déplacer"}">${ICON.grip}</button>`;
+
+  // Code du script : la proposition (prochain numéro libre de la même base) s'affiche en grisé après le curseur.
+  function nextCode(excludeSid) {
+    const last = C().scripts.filter((s) => s.id !== excludeSid).map((s) => s.code).filter((c) => /\d+$/.test(c)).pop() || "";
+    return last ? suggestCode(last, excludeSid) : "";
+  }
+  // Seulement si la base tapée existe déjà (« EvalM » quand EvalM8 existe → EvalM9).
+  function codeSuggestion(sid, typed) {
+    const t = String(typed || "").trim();
+    if (!t) return nextCode(sid);
+    const m = /^(.*?)(\d*)$/.exec(t), base = m[1].toLowerCase();
+    if (!base) return "";
+    let max = 0, cased = m[1];
+    const codes = C().scripts.filter((s) => s.id !== sid).map((s) => s.code);
+    S.trash.forEach((x) => { if (x.kind === "script" && x.item && isStr(x.item.code)) codes.push(x.item.code); });
+    if (m[2] && !codes.some((c) => isStr(c) && c.toLowerCase() === t.toLowerCase())) return "";
+    codes.filter(isStr).forEach((c) => {
+      const mm = /^(.*?)(\d+)$/.exec(c);
+      if (mm && mm[1].toLowerCase() === base && parseInt(mm[2], 10) > max) { max = parseInt(mm[2], 10); cased = mm[1]; }
+    });
+    if (!max) return "";
+    const sug = (m[1] || cased) + (max + 1);
+    return sug === t ? "" : sug;
+  }
+  function codeGhost(sid, typed) {
+    const t = String(typed || ""), sug = codeSuggestion(sid, t);
+    if (!sug) return "";
+    return sug.toLowerCase().indexOf(t.toLowerCase()) === 0 ? sug.slice(t.length) : "→" + sug;
+  }
+  function linkHint(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (_) { return ""; } }
+  // Pastilles des courtiers : initiale (deux lettres si deux prénoms commencent pareil).
+  function initials() {
+    const out = {}, bs = C().brokers;
+    bs.forEach((b) => {
+      const nm = String(b.name || b.id);
+      let k = 1;
+      while (k < nm.length && bs.some((o) => o !== b && String(o.name || o.id).slice(0, k).toLowerCase() === nm.slice(0, k).toLowerCase())) k++;
+      out[b.id] = nm.slice(0, k).toUpperCase();
+    });
+    return out;
+  }
+  // Script : gris = ne l'a pas ; noir = l'a ; vert = tout coché. Avec sa fraction.
+  function scriptPills(s) {
+    const ini = initials();
+    return `<div class="spills" role="group" aria-label="Qui a ce script">${C().brokers.map((br) => {
+      const on = has(s, br.id), st = on ? scriptDone(br.id, visibleItems(s, br.id)) : null;
+      const cls = !on ? "off" : st.done ? "ok" : "on";
+      const lab = ini[br.id] + (on ? NB + st.n + "/" + st.total : "");
+      return `<button type="button" class="bp ${cls}" id="sp-${esc(s.id)}-${esc(br.id)}" data-act="spill" data-sid="${esc(s.id)}" data-b="${esc(br.id)}" data-name="${esc(br.name)}" title="${esc(br.name)}" aria-pressed="${on}" aria-label="${esc(br.name + (on ? " : " + st.n + "/" + st.total : " : n'a pas ce script"))}">${esc(lab)}</button>`;
+    }).join("")}</div>`;
+  }
+  // Élément (cette version) : gris = ne l'a pas ; noir = l'a ; vert = l'a coché. Pointillé = n'a pas le script.
+  function itemPills(s, v) {
+    const ini = initials(), vs = s.items.filter((x) => x.key === v.key);
+    return C().brokers.map((br) => {
+      const sc = has(s, br.id), holds = sc && vs.find((x) => has(x, br.id)) === v;
+      const cls = !sc ? "na" : holds ? (v.kind === "hook" && isDone(br.id, v) ? "ok" : "on") : "off";
+      const tip = br.name + (sc ? "" : " (n'a pas ce script)");
+      return `<button type="button" class="bp ${cls}" id="ip-${esc(v.id)}-${esc(br.id)}" data-act="pill" data-iid="${esc(v.id)}" data-b="${esc(br.id)}" data-name="${esc(tip)}" title="${esc(tip)}" aria-pressed="${holds}"${sc ? "" : " disabled"}>${esc(ini[br.id])}</button>`;
+    }).join("");
+  }
+  // En-tête de bulle : « Zak- » (page d'un courtier) + code + « -env » éditables ; lien raw et compte sur la page d'un courtier.
+  function ownerHead(b, x) {
+    const s = x.s, sid = esc(s.id);
+    const code = fval("s-code", s.id, s.code), env = fval("s-env", s.id, s.env);
+    const ghost = codeGhost(s.id, code);
+    const opts = envOptions(s.id), open = opts.length > 0;
+    const link = b ? safeUrl(s.raw[b.id]) : "";
+    return `<div class="sbhd own">
+      ${grip("script", s.id)}
+      <span class="ttl">${b ? `<span class="tbro">${esc(b.name)}-</span>` : ""}<span class="gw"><input class="tin code" id="f-s-code-${sid}" data-field="s-code" data-id="${sid}" value="${esc(code)}" placeholder="${ghost ? "" : "code"}" aria-label="Code du script" autocomplete="off" autocapitalize="off" spellcheck="false"><span class="ghost" id="gh-code-${sid}">${esc(ghost)}</span></span><span class="combo tenv${open ? " open" : ""}${env ? "" : " noenv"}" id="cb-${sid}"><span class="tdash">-</span><input class="tin env" id="f-s-env-${sid}" data-field="s-env" data-id="${sid}" value="${esc(env)}" placeholder="env" role="combobox" aria-autocomplete="list" aria-controls="cbl-${sid}" aria-expanded="${open}" aria-label="Environnement" autocomplete="off" autocapitalize="words" spellcheck="false"><button type="button" class="cbarrow" id="b-env-${sid}" tabindex="-1" data-act="env-toggle" data-id="${sid}" aria-label="Environnements">${ICON.tri}</button><div class="cblist" id="cbl-${sid}" role="listbox" aria-label="Environnements"${open ? "" : " hidden"}>${open ? envOptsHtml(s.id, opts, env) : ""}</div></span></span>
+      ${b ? `<button type="button" class="rawchip${link ? "" : " none"}" id="rc-${sid}" data-act="raw-edit" data-id="${sid}" aria-label="Dossier raw de ${esc(b.name)}" title="Dossier raw de ${esc(b.name)}">${ICON.folder}${link ? `<span class="rawtxt">${esc(linkHint(link))}</span>` : ""}</button><span class="frac">${x.st.n}/${x.st.total}</span>` : ""}
+      ${ib("script-trash", s.id, ICON.trash, b ? "Retirer ce script" : "Mettre le script à la corbeille", false, "trash")}
+      ${triBtn("sfold", s.id, x.open)}
+    </div>`;
+  }
+  function ownerBubble(b, x) {
+    const s = x.s;
+    const cls = `sbub own${x.st.done ? " is-done" : ""}${x.open ? " open" : ""}`;
+    const inner = infoLine(s) + (viewMode === "texte" ? `<div class="doc">${ownerElems(b, x, "text")}</div>` : ownerElems(b, x, "cards"));
+    return `<section class="${cls}" data-dnd-el data-key="${esc(s.id)}" aria-label="${esc(scriptLabel(s))}">${ownerHead(b, x)}${scriptPills(s)}${b && S.ui.rawEdit === s.id ? rawEditRow(b, s) : ""}${x.open ? `<div class="sbin">${inner}${b ? depositBtn(b, s) : ""}</div>` : ""}</section>`;
+  }
+  // Coller ou changer le lien raw de ce courtier pour ce script (jamais affiché en entier).
+  function rawEditRow(b, s) {
+    const id = s.id + "~" + b.id, has1 = !!safeUrl(s.raw[b.id]);
+    return `<div class="rawedit"><input class="field" id="f-rawset-${esc(id)}" data-field="rawset" data-id="${esc(id)}" value="" placeholder="${has1 ? "Coller un nouveau lien" : "Coller le lien du dossier raw"}" inputmode="url" aria-label="Dossier raw de ${esc(b.name)}" autocomplete="off">${has1 ? ib("raw-clear", id, "×", "Enlever le lien") : ""}</div>`;
+  }
+  // Info : une ligne discrète, repliée.
+  function infoLine(s) {
+    const open = !!S.ui.infoOpen[s.id], v = fval("s-title", s.id, s.title);
+    return `<div class="infoline${open ? " open" : ""}"><button type="button" class="infotog" id="it-${esc(s.id)}" data-act="info-tog" data-id="${esc(s.id)}" aria-expanded="${open}"><span class="tri">${ICON.tri}</span>Info${!open && v ? `<span class="infoprev">${NB}· ${esc(trunc(v, 42))}</span>` : ""}</button>${open ? field("s-title", s.id, s.title, "input", "field", "Info", ' placeholder="Info"') : ""}</div>`;
+  }
+  // Numéro HK : la même proposition qu'avant (similaire, déjà pris, prochain libre), sans boîte.
+  function numSugg(v, typed) {
+    const text = fval("i-text", v.id, v.text);
+    const cur = parseInt(typed != null ? typed : (v.num != null ? String(v.num) : ""), 10);
+    const sim = similarHook(text, v.key);
+    if (sim && sim.num !== cur) return sim.num;
+    if (cur > 0 && allHooks(true).some((h) => h.num === cur && h.key !== v.key && !likeness(h.text, text))) return nextFreeNum(null, v.key);
+    if (sim && sim.num === cur && S.ui.fresh[v.id]) return nextFreeNum(null, v.key);
+    if (!(cur > 0)) return nextFreeNum(null, v.key);
+    return null;
+  }
+  const numGhost = (g, typed) => (g == null || String(g) === String(typed || "") ? "" : (typed ? "→" : "") + g);
+  function hintHtml(v) {
+    const g = v.kind === "hook" && S.ui.numEdit !== v.id ? numSugg(v, null) : null;
+    return g != null ? `<button type="button" class="hkhint" data-act="setnum" data-id="${esc(v.id)}" data-n="${g}" title="Utiliser HK${g}">→${NB}HK${g}</button>` : "";
+  }
+  // Étiquette « HK13 » : un clic rend le numéro modifiable sur place.
+  function hkLabel(v, cls) {
+    if (v.kind !== "hook") return `<span class="${cls}">${esc(itemLabel(v))}</span>`;
+    if (S.ui.numEdit === v.id) {
+      const typed = fval("i-num", v.id, v.num != null ? String(v.num) : "");
+      return `<span class="${cls} hked">HK<input class="tin num" id="f-i-num-${esc(v.id)}" data-field="i-num" data-id="${esc(v.id)}" value="${esc(typed)}" inputmode="numeric" aria-label="Numéro du hook" autocomplete="off"><span class="ghost" id="gh-num-${esc(v.id)}">${esc(numGhost(numSugg(v, typed), typed))}</span></span>`;
+    }
+    return `<button type="button" class="${cls} hkbtn" id="hk-${esc(v.id)}" data-act="num-edit" data-id="${esc(v.id)}" aria-label="${esc(itemLabel(v))} : changer le numéro">${esc(itemLabel(v))}</button><span class="hh" id="hh-${esc(v.id)}">${hintHtml(v)}</span>`;
+  }
+  const bumpLine = (v) => (S.ui.bump && S.ui.bump.iid === v.id
+    ? `<p class="sline">À refaire pour ${esc(listFr(S.ui.bump.names))} · <button type="button" class="lnk" id="b-keep-checks" data-act="keep-checks">garder leurs coches</button></p>` : "");
+  const textArea = (v, cls) => field("i-text", v.id, v.text, "textarea", cls, "Texte de " + itemLabel(v), v.kind === "hook" && !v.text ? ' placeholder="Texte du hook (ou colle tout le script)"' : ` placeholder="${esc(itemLabel(v))}"`);
+  // Éléments : HK, puis Body, puis CTA ; un « + » sous le dernier de chaque groupe.
+  function ownerElems(b, x, mode) {
+    const s = x.s, keys = uniq(x.held.map((it) => it.key));
+    const sec = (kind, label, what) => {
+      const ks = keys.filter((k) => (s.items.find((it) => it.key === k) || {}).kind === kind);
+      const add = `<button type="button" class="addplus" id="b-add-${kind}-${esc(s.id)}" data-act="add-item" data-sid="${esc(s.id)}" data-kind="${kind}" aria-label="Ajouter ${what}" title="Ajouter ${what}">+</button>`;
+      return `<div class="list" data-dnd="item" data-sid="${esc(s.id)}" data-kind="${kind}">${ks.length ? ks.map((k) => ownerElem(b, s, k, mode)).join("") : `<div class="emptyslot">${label}</div>`}${add}</div>`;
+    };
+    return sec("hook", "HK", "un hook") + sec("body", "Body", "un body") + sec("cta", "CTA", "un CTA");
+  }
+  // Un élément : la version d'origine, puis ses versions (variantes) en sous-lignes, chacune avec ses pastilles.
+  function ownerElem(b, s, key, mode) {
+    const vs = s.items.filter((it) => it.key === key);
+    const mine = b ? vs.find((v) => has(v, b.id)) || null : null;
+    const done = !!(mine && mine.kind === "hook" && isDone(b.id, mine));
+    const redo = !!(mine && mine.kind === "hook" && !done && isRedo(b.id, mine));
+    const fk = "k:" + s.id + "~" + key;
+    const open = Object.prototype.hasOwnProperty.call(S.ui.fold, fk) ? S.ui.fold[fk] : !done;
+    const cls = (mode === "cards" ? "clip own read" : "dblk own") + (open ? " open" : "") + (done ? " is-done" : "") + (redo ? " is-redo" : "");
+    return `<div class="${cls}" data-dnd-el data-key="${esc(key)}">${vs.map((v, i) => ownerRow(b, s, v, i > 0, mine, open, fk, mode)).join("")}</div>`;
+  }
+  function ownerRow(b, s, v, sub, mine, open, fk, mode) {
+    const isHook = v.kind === "hook", isMine = !!(b && mine === v);
+    const done = isMine && isHook && isDone(b.id, v), redo = isMine && isHook && !done && isRedo(b.id, v);
+    const box = isMine && isHook ? tickBox(b, s, v, done, mode === "cards" ? "ck-" : "dk-", "dck") : "";
+    // Poubelle : version (variante) = supprimée ; sinon retiré de ce courtier (page d'un courtier) ou corbeille (« Tous »).
+    const canTrash = sub || !b || isMine;
+    const tools = ib("ver", v.id, ICON.branch, "Version pour…") + (canTrash ? ib("item-trash", v.id, ICON.trash, sub ? "Supprimer cette version" : b ? "Retirer pour " + b.name : "Mettre à la corbeille", false, "trash") : "")
+      + (sub ? "" : grip("item", s.id + "~" + v.key) + triBtn("fold", fk, open));
+    const lab = sub && !isHook ? `<span class="${mode === "cards" ? "slate" : "dlab"}">${esc(itemLabel(v))}</span>` : hkLabel(v, mode === "cards" ? "slate" : "dlab");
+    const fname = isMine && isHook ? `<span class="fname">${esc(clipName(b.name, s, v))}</span>` : "";
+    const chooser = S.ui.verFor === v.id ? `<div class="verch"><span class="fl">Version pour</span>${C().brokers.filter((br) => has(s, br.id)).map((br) => `<button type="button" class="bp off" id="vm-${esc(v.id)}-${esc(br.id)}" data-act="ver-make" data-iid="${esc(v.id)}" data-b="${esc(br.id)}" data-name="${esc(br.name)}" title="${esc(br.name)}">${esc(initials()[br.id])}</button>`).join("")}</div>` : "";
+    return `<div class="vrow${sub ? " sub" : ""}${done ? " is-done" : ""}${redo ? " is-redo" : ""}">
+      <div class="rhead">${box}${lab}${redo ? `<span class="pill warn">À refaire</span>` : ""}<span class="rtools">${tools}</span></div>
+      <div class="rpills">${itemPills(s, v)}${fname}</div>
+      ${chooser}${open ? textArea(v, mode === "cards" ? "field txtin" : "dtxtin") : ""}${bumpLine(v)}
+    </div>`;
+  }
+  // Environnement : champ libre + flèche qui ouvre la liste (connus + déjà utilisés) ; taper filtre.
+  function envOptions(sid) {
+    const o = S.ui.envOpen, s = findScript(sid);
+    if (!o || o.sid !== sid || !s) return [];
+    const q = normText(fval("s-env", sid, s.env));
+    return o.all || !q ? envList() : envList().filter((e) => normText(e).indexOf(q) >= 0);
+  }
+  function envOptsHtml(sid, opts, cur) {
+    const c = String(cur || "").trim().toLowerCase();
+    return opts.map((e, i) => `<button type="button" class="cbopt" role="option" id="eo-${esc(sid)}-${i}" tabindex="-1" data-act="env-pick" data-id="${esc(sid)}" data-v="${esc(e)}" aria-selected="${e.toLowerCase() === c}">${esc(e)}</button>`).join("");
+  }
+  // Ouvre/ferme sans tout redessiner (un doigt peut être posé sur la liste).
+  function refreshEnv(sid) {
+    const box = document.getElementById("cb-" + sid);
+    if (!box) return;
+    const opts = envOptions(sid), open = opts.length > 0;
+    const list = document.getElementById("cbl-" + sid), inp = document.getElementById("f-s-env-" + sid);
+    box.classList.toggle("open", open);
+    if (inp) inp.setAttribute("aria-expanded", String(open));
+    if (list) { list.hidden = !open; list.innerHTML = open ? envOptsHtml(sid, opts, inp ? inp.value : "") : ""; }
+  }
+  function setEnvOpen(v) {
+    const prev = S.ui.envOpen;
+    S.ui.envOpen = v;
+    if (prev && (!v || prev.sid !== v.sid)) refreshEnv(prev.sid);
+    if (v) refreshEnv(v.sid);
+  }
+  // Champs du titre : largeur au plus juste du texte, pour que la proposition suive le curseur.
+  const measure = document.createElement("canvas").getContext("2d");
+  function fitInput(el) {
+    try {
+      const cs = getComputedStyle(el);
+      measure.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+      const w = measure.measureText(el.value || el.placeholder || "").width;
+      el.style.width = Math.ceil(w + 6) + "px";
+    } catch (_) {}
+  }
+
+  // Panneau de l'accueil (propriétaire) : l'équipe, le dossier commun, la corbeille.
+  function panelView() {
+    const back = `<button type="button" class="lnk back" id="b-pclose" data-act="panel-close"><span aria-hidden="true">←</span> Retour</button>`;
+    return shell(`<main>${teamScreen()}${trashScreen()}</main>`, true, savedTag(), back);
+  }
+  function teamScreen() {
+    const c = C();
+    const rows = c.brokers.map((b, i) => `<div class="trow">
+        ${field("broker-name", b.id, b.name, "input", "field name", "Prénom")}
+        ${field("broker-drive", b.id, b.drive, "input", "field url", "Dossier Drive de " + b.name, ' inputmode="url" placeholder="Dossier Drive"')}
+        <span class="tools">${brokerLink(b.id) ? `<button type="button" class="btn sm ghost" id="b-copy-${esc(b.id)}" data-act="copylink" data-id="${esc(b.id)}">${S.ui.copied === b.id ? "Copié" : "Copier son lien"}</button>` : ""}${ib("broker-up", b.id, "↑", "Monter", i === 0)}${ib("broker-down", b.id, "↓", "Descendre", i === c.brokers.length - 1)}${ib("broker-trash", b.id, ICON.trash, "Mettre à la corbeille", false, "trash")}</span>
+        ${S.ui.linkShown === b.id ? `<input class="field mono" id="f-link-${esc(b.id)}" readonly value="${esc(brokerLink(b.id))}" aria-label="Lien de ${esc(b.name)}">` : ""}
+      </div>`).join("");
+    const adding = S.ui.composer && S.ui.composer.type === "broker";
+    const add = adding
+      ? `<input class="field" id="d-nb-name" data-draft="nb-name" value="${esc(S.ui.drafts["nb-name"] || "")}" placeholder="Prénom" aria-label="Prénom du nouveau courtier" autocomplete="off">`
+      : `<button type="button" class="plus" id="b-addbroker-open" data-act="addbroker-open" aria-label="Ajouter un courtier">+</button>`;
+    const common = safeUrl(c.commonDrive);
+    return `<h1 class="h1">Équipe</h1><section class="panel">${rows}${add}</section>
+      <section class="panel">
+        <div class="crow"><span class="fl">Dossier commun</span><div class="trow" style="border:0;padding:0">${field("common-drive", "main", c.commonDrive, "input", "field url", "Dossier commun", ' inputmode="url"')}${common ? `<a class="btn sm ghost" id="b-common" href="${esc(common)}" target="_blank" rel="noopener noreferrer">Ouvrir <span aria-hidden="true">↗</span></a>` : ""}</div></div>
+      </section>`;
+  }
+  function trashScreen() {
+    const c = C();
+    const head = `<h1 class="h1">Corbeille</h1>`;
+    if (!S.trash.length) return head + `<section class="empty"><p>Vide.</p></section>`;
+    return head + S.trash.map((t) => {
+      const it = t.item || {};
+      const forWhom = t.partial && Array.isArray(t.who) && t.who.length ? " · pour " + names(t.who) : "";
+      let what = "Élément", sub = "", can = true;
+      if (t.kind === "script") {
+        let sc = null;
+        try { sc = isStr(it.id) ? normScript(it) : null; } catch (_) {}
+        what = "Script " + (sc ? scriptLabel(sc) : "?") + forWhom;
+        sub = sc && sc.title ? sc.title : "";
+      } else if (t.kind === "item" || t.kind === "clip") {
+        let x = null;
+        try { x = isStr(it.id) ? normItem(it) : null; } catch (_) {}
+        what = (x ? itemLabel(x) : "Élément") + " · " + (t.scriptLabel || t.scriptTitle || "") + forWhom;
+        sub = trunc(it.text, 80);
+        can = c.scripts.some((s) => s.id === t.scriptId);
+      } else if (t.kind === "broker") {
+        what = it.name || "Courtier";
+      }
+      const armed = S.ui.confirm === t.tid;
+      return `<div class="titem">
+        <div class="tinfo"><p class="twhat">${esc(what)}</p>${sub ? `<p class="meta">${esc(sub)}</p>` : ""}</div>
+        <div class="ctrl">
+          <button type="button" class="btn sm" id="b-restore-${esc(t.tid)}" data-act="restore" data-id="${esc(t.tid)}"${can ? "" : ' disabled title="Restaure d\'abord son script"'}>Restaurer</button>
+          <button type="button" class="btn sm danger${armed ? " armed" : ""}" id="b-purge-${esc(t.tid)}" data-act="purge" data-id="${esc(t.tid)}">${armed ? "Confirmer" : "Supprimer"}</button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  /* ---------- Avis (toast) ---------- */
+  let toastTimer = 0;
+  function showToast(m, action, ms) {
+    S.toast = { msg: m, action: action || null };
+    toastEl.innerHTML = `<span>${esc(m)}</span>` + (action ? `<button type="button" id="toast-act">${esc(action.label)}</button>` : "");
+    toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, ms || (action ? 6000 : 3000));
+  }
+  function hideToast() { S.toast = null; toastEl.hidden = true; toastEl.innerHTML = ""; }
+  toastEl.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "toast-act" && S.toast && S.toast.action) {
+      const run = S.toast.action.run;
+      hideToast();
+      run();
+    }
+  });
+  function writeErrorToast(e) {
+    const c = codeOf(e);
+    if (TERMINAL.indexOf(c) >= 0) { S.phase = "revoked"; scheduleRender(); return; }
+    if (c === "quota_exceeded") showToast("Base pleine" + NB + ": vide la corbeille.", null, 6000);
+    else if (c === "resource_exhausted") showToast("Trop de changements d'un coup. Réessaie.", null, 5000);
+    else if (c === "invalid_argument") showToast("Changement refusé.", null, 5000);
+    else showToast("Pas enregistré" + NB + ": connexion perdue.", null, 5000);
+  }
+  let savedTimer = 0;
+  function flashSaved() {
+    S.ui.savedUntil = Date.now() + 1300;
+    const el = document.getElementById("saved");
+    if (el) el.classList.add("on");
+    clearTimeout(savedTimer);
+    savedTimer = setTimeout(() => { const x = document.getElementById("saved"); if (x) x.classList.remove("on"); }, 1300);
+  }
+
+  /* ---------- Écritures ---------- */
+  async function dbWrite(fn) {
+    try { return await fn(); }
+    catch (e) {
+      if (codeOf(e) !== "unavailable") throw e;
+      await sleep(250 + Math.random() * 750);
+      return await fn();
+    }
+  }
+  // Contenu : un seul document, une écriture à la fois, la plus récente gagne.
+  const cw = { writing: false, next: null, waiters: [] };
+  function commitContent(next) {
+    S.content = next;
+    S.contentJson = canon(next);
+    scheduleRender();
+    return new Promise((resolve, reject) => {
+      cw.next = next;
+      cw.waiters.push({ resolve, reject });
+      if (!cw.writing) flushContent();
+    });
+  }
+  async function flushContent() {
+    cw.writing = true;
+    let failed = false;
+    while (cw.next) {
+      const body = cw.next, waiters = cw.waiters;
+      cw.next = null; cw.waiters = [];
+      try {
+        await dbWrite(() => S.db.doc("content/main").set(body));
+        waiters.forEach((w) => w.resolve());
+        flashSaved();
+      } catch (e) {
+        failed = true;
+        waiters.forEach((w) => w.reject(e));
+        writeErrorToast(e);
+      }
+    }
+    cw.writing = false;
+    if (failed) resyncContent();
+  }
+  async function resyncContent() {
+    try {
+      const snap = await S.db.doc("content/main").get();
+      if (cw.writing || cw.next) return;
+      const d = snap.exists ? snap.data() : null;
+      S.content = norm(clone(d));
+      S.contentJson = canon(S.content);
+      scheduleRender();
+    } catch (_) {}
+  }
+  function mutate(fn) {
+    if (!S.db) return null;
+    const next = norm(clone(S.content)) || emptyContent();
+    const r = fn(next);
+    if (r === false) return null;
+    next.updatedAt = Date.now();
+    commitContent(next).catch(() => {});
+    return { result: r };
+  }
+  // « Annuler » générique : revient à l'état d'avant si rien n'a bougé entre-temps.
+  function undoAction(prev) {
+    const after = S.contentJson;
+    return {
+      label: "Annuler",
+      run: () => {
+        if (S.contentJson !== after) { showToast("Trop tard pour annuler."); return; }
+        const p = norm(clone(prev)) || emptyContent();
+        p.updatedAt = Date.now();
+        commitContent(p).catch(() => {});
+      }
+    };
+  }
+  function move(arr, i, d) {
+    const j = i + d;
+    if (i < 0 || j < 0 || j >= arr.length) return false;
+    const x = arr.splice(i, 1)[0];
+    arr.splice(j, 0, x);
+    return true;
+  }
+
+  // Progression : un document par courtier, écritures en file par document.
+  const pq = {};
+  function enqueueProgress(bid, payload) {
+    const p = (pq[bid] || Promise.resolve()).catch(() => {}).then(() => writeProgress(bid, payload));
+    pq[bid] = p;
+    return p;
+  }
+  async function writeProgress(bid, payload) {
+    const ref = S.db.doc("progress/" + bid);
+    try {
+      await dbWrite(() => ref.update(payload));
+    } catch (e) {
+      if (codeOf(e) !== "invalid_argument") throw e;
+      const snap = await ref.get();
+      if (snap.exists) throw e;          // le document existe : c'est un refus d'écriture
+      await dbWrite(() => ref.set(payload));
+    }
+  }
+  function setReadOnly() { if (!S.readOnly) { S.readOnly = true; scheduleRender(); } }
+  function onProgressError(e) {
+    const c = codeOf(e);
+    if (c === "invalid_argument") { setReadOnly(); showToast("Pas enregistré" + NB + ": lecture seule.", null, 5000); }
+    else writeErrorToast(e);
+  }
+  let tokenSeq = 0;
+  function track(key, val, promise) {
+    const token = ++tokenSeq;
+    S.pending[key] = { val, token, settled: false };
+    scheduleRender();
+    promise.then(() => {
+      const p = S.pending[key];
+      if (p && p.token === token) {
+        p.settled = true;
+        setTimeout(() => { const q = S.pending[key]; if (q && q.token === token) { delete S.pending[key]; scheduleRender(); } }, 4000);
+      }
+    }).catch((e) => {
+      const p = S.pending[key];
+      if (p && p.token === token) delete S.pending[key];
+      onProgressError(e);
+      scheduleRender();
+    });
+  }
+  function setCheck(bid, s, it, on) {
+    if (S.readOnly || !S.db) { scheduleRender(); return; }
+    const now = Date.now();
+    const val = on ? { h: th(it.text), rev: num(it.rev), at: now } : null;
+    delete S.ui.fold[it.id];
+    track("c|" + bid + "|" + it.key, val, enqueueProgress(bid, { checks: { [it.key]: val }, updatedAt: now }));
+    if (on) {
+      showToast(itemLabel(it) + NB + ": tourné.", {
+        label: "Annuler",
+        run: () => { const f = findItem(it.id); if (f) setCheck(bid, f.s, f.it, false); }
+      });
+    }
+  }
+
+  // Corbeille (un clic, annulable ; seule la suppression définitive demande confirmation)
+  const clampIdx = (i, n) => Math.max(0, Math.min(num(i), n));
+  async function trashDoc(tid, body) {
+    try { await dbWrite(() => S.db.doc("trash/" + tid).set(body)); return true; }
+    catch (e) { writeErrorToast(e); return false; }
+  }
+  // Poubelle d'un élément (une ligne) :
+  // - sous-ligne (variante) : supprimée, ses courtiers retournent à la version d'origine ;
+  // - page d'un courtier : retiré de lui seul si d'autres l'ont, sinon corbeille ;
+  // - vue « Tous » : corbeille pour tout le monde (toutes les versions).
+  async function removeItem(iid) {
+    const f = findItem(iid);
+    if (!f) return;
+    const { s, it } = f;
+    const b = ctxB();
+    const vs = s.items.filter((x) => x.key === it.key);
+    const main = vs[0], label = itemLabel(it);
+    const prev = clone(S.content);
+    if (it !== main) {
+      const r = mutate((n) => {
+        const sc = n.scripts.find((x) => x.id === s.id);
+        const v = sc && sc.items.find((x) => x.id === iid), m = v && sc.items.find((x) => x.key === v.key);
+        if (!v || m === v) return false;
+        holdOf(n, sc, v).forEach((bid) => include(m, bid));
+        sc.items = sc.items.filter((x) => x !== v);
+        simplify(n, sc, v.key);
+      });
+      if (r) showToast("Version supprimée.", undoAction(prev));
+      return;
+    }
+    const others = b ? allBids().filter((x) => x !== b.id && has(s, x) && vs.some((v) => has(v, x))) : [];
+    if (b && others.length) {
+      const r = mutate((n) => {
+        const sc = n.scripts.find((x) => x.id === s.id);
+        if (!sc) return false;
+        sc.items.forEach((x) => { if (x.key === it.key) exclude(x, b.id); });
+        pruneSlot(n, sc, it.key);
+      });
+      if (r) showToast(label + " retiré pour " + b.name + ".", undoAction(prev));
+      return;
+    }
+    const tid = "item_" + it.key + "_" + rid("t").slice(2);
+    const body = { kind: "item", item: clone(main), versions: clone(vs), scriptId: s.id, scriptLabel: scriptLabel(s), index: s.items.indexOf(main), deletedAt: Date.now() };
+    if (!(await trashDoc(tid, body))) return;
+    if (S.ui.bump && vs.some((v) => v.id === S.ui.bump.iid)) S.ui.bump = null;
+    const r = mutate((n) => {
+      const sc = n.scripts.find((x) => x.id === s.id);
+      if (!sc || !sc.items.some((x) => x.key === it.key)) return false;
+      sc.items = sc.items.filter((x) => x.key !== it.key);
+    });
+    if (r) showToast(label + " à la corbeille.", { label: "Annuler", run: () => restoreItem(Object.assign({ tid }, body)) });
+  }
+  // Poubelle d'un script : « Tous » = corbeille ; page d'un courtier = retiré de lui seul si d'autres l'ont, sinon corbeille.
+  async function removeScript(sid) {
+    const s = findScript(sid);
+    if (!s) return;
+    const b = ctxB(), prev = clone(S.content);
+    if (b && audience(s).some((x) => x !== b.id)) {
+      const r = mutate((n) => { const x = n.scripts.find((y) => y.id === sid); if (!x) return false; exclude(x, b.id); });
+      if (r) showToast(scriptLabel(s) + " retiré pour " + b.name + ".", undoAction(prev));
+      return;
+    }
+    const tid = "script_" + s.id;
+    const body = { kind: "script", item: clone(s), index: C().scripts.indexOf(s), deletedAt: Date.now() };
+    if (!(await trashDoc(tid, body))) return;
+    const r = mutate((n) => { const i = n.scripts.findIndex((x) => x.id === sid); if (i < 0) return false; n.scripts.splice(i, 1); });
+    if (r) showToast(scriptLabel(s) + " à la corbeille.", { label: "Annuler", run: () => restoreItem(Object.assign({ tid }, body)) });
+  }
+  async function removeBroker(id) {
+    const c = S.content;
+    const index = c ? c.brokers.findIndex((b) => b.id === id) : -1;
+    if (index < 0) return;
+    const item = clone(c.brokers[index]);
+    const tid = "broker_" + id;
+    const body = { kind: "broker", item, index, deletedAt: Date.now() };
+    if (!(await trashDoc(tid, body))) return;
+    const r = mutate((n) => { const i = n.brokers.findIndex((b) => b.id === id); if (i < 0) return false; n.brokers.splice(i, 1); });
+    if (r) showToast(item.name + " à la corbeille.", { label: "Annuler", run: () => restoreItem(Object.assign({ tid }, body)) });
+  }
+  // Un courtier qui revient dans un script : une seule version de chaque élément (la sienne, sinon celle de base).
+  function ensureItemsFor(s, b) {
+    uniq(s.items.map((x) => x.key)).forEach((k) => {
+      const vs = s.items.filter((x) => x.key === k);
+      const held = vs.filter((x) => has(x, b));
+      if (!held.length) include(baseVersion(vs), b);
+      else held.slice(1).forEach((x) => exclude(x, b));
+    });
+  }
+  async function restoreItem(t) {
+    if (!t || !S.db) return;
+    const next = norm(clone(S.content)) || emptyContent();
+    const bids = next.brokers.map((b) => b.id);
+    const who = t.partial && Array.isArray(t.who) ? t.who.filter((b) => bids.indexOf(b) >= 0) : null;
+    let name = "";
+    if (t.kind === "script") {
+      const snap = normScript(t.item || {});
+      let s = next.scripts.find((x) => x.id === snap.id);
+      if (!s) {
+        s = snap;
+        if (who) { s.to = []; s.not = []; }
+        next.scripts.splice(clampIdx(t.index, next.scripts.length), 0, s);
+      }
+      (who || audOf(next, s)).forEach((b) => {
+        next.scripts.forEach((x) => { if (x !== s && x.key === s.key) exclude(x, b); });
+        include(s, b);
+        ensureItemsFor(s, b);
+      });
+      next.scripts = next.scripts.filter((x) => !(x !== s && x.key === s.key && Array.isArray(x.to) && !x.to.length));
+      name = scriptLabel(s);
+    } else if ((t.kind === "item" || t.kind === "clip") && Array.isArray(t.versions) && t.versions.length) {
+      // Élément entier (toutes ses versions), remis à sa place.
+      const s = next.scripts.find((x) => x.id === t.scriptId);
+      if (!s) { showToast("Restaure d'abord son script."); return; }
+      const vs = t.versions.map(normItem).filter((v) => !s.items.some((x) => x.id === v.id));
+      s.items.splice.apply(s.items, [clampIdx(t.index, s.items.length), 0].concat(vs));
+      name = vs.length ? itemLabel(vs[0]) : "Élément";
+    } else if (t.kind === "item" || t.kind === "clip") {
+      const s = next.scripts.find((x) => x.id === t.scriptId);
+      if (!s) { showToast("Restaure d'abord son script."); return; }
+      const snap = normItem(t.item || {});
+      let it = s.items.find((x) => x.id === snap.id);
+      if (!it) {
+        it = snap;
+        if (who) { it.to = []; it.not = []; }
+        s.items.splice(clampIdx(t.index, s.items.length), 0, it);
+      }
+      (who || holdOf(next, s, it)).forEach((b) => {
+        s.items.forEach((x) => { if (x !== it && x.key === it.key) exclude(x, b); });
+        include(it, b);
+      });
+      pruneSlot(next, s, it.key);
+      simplify(next, s, it.key);
+      name = itemLabel(it);
+    } else if (t.kind === "broker") {
+      const it = clone(t.item) || {};
+      if (!next.brokers.some((b) => b.id === it.id)) next.brokers.splice(clampIdx(t.index, next.brokers.length), 0, it);
+      name = it.name || "Courtier";
+    } else return;
+    next.updatedAt = Date.now();
+    const ok = await commitContent(norm(next)).then(() => true, () => false);
+    if (!ok) return;
+    try { await dbWrite(() => S.db.doc("trash/" + t.tid).delete()); } catch (e) { writeErrorToast(e); }
+    showToast(name + " restauré.");
+  }
+  let confirmTimer = 0;
+  async function purge(tid) {
+    if (S.ui.confirm !== tid) {
+      S.ui.confirm = tid;
+      scheduleRender();
+      clearTimeout(confirmTimer);
+      confirmTimer = setTimeout(() => { if (S.ui.confirm === tid) { S.ui.confirm = null; scheduleRender(); } }, 5000);
+      return;
+    }
+    S.ui.confirm = null;
+    const t = S.trash.find((x) => x.tid === tid);
+    try {
+      await dbWrite(() => S.db.doc("trash/" + tid).delete());
+      if (t && t.kind === "broker" && t.item && t.item.id && !(S.content && S.content.brokers.some((b) => b.id === t.item.id))) {
+        await dbWrite(() => S.db.doc("progress/" + t.item.id).delete());
+      }
+    } catch (e) { writeErrorToast(e); }
+    scheduleRender();
+  }
+
+  // Ajouts
+  const RESERVED = ["settings", "sidebar", "customize", "upgrade", "downloads", "tous"];
+  function slug(s) {
+    return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 24) || "courtier";
+  }
+  function uniqueSlug(name) {
+    let base = slug(name);
+    if (RESERVED.indexOf(base) >= 0 || base.indexOf("comment-") === 0) base = "c-" + base;
+    const taken = new Set([].concat(
+      C().brokers.map((b) => b.id),
+      S.trash.filter((t) => t.kind === "broker" && t.item).map((t) => t.item.id),
+      Object.keys(S.progress)
+    ));
+    let id = base, n = 2;
+    while (taken.has(id)) id = base + "-" + n++;
+    return id;
+  }
+  let addingBroker = false;
+  async function addBroker() {
+    const name = (S.ui.drafts["nb-name"] || "").trim();
+    if (!name) { S.ui.composer = null; scheduleRender(); return; }
+    if (addingBroker) return;
+    addingBroker = true;
+    const id = uniqueSlug(name);
+    try { await dbWrite(() => S.db.doc("progress/" + id).set({ checks: {}, drops: {} })); }
+    catch (e) { addingBroker = false; writeErrorToast(e); return; }
+    const r = mutate((c) => { c.brokers.push({ id, name, drive: "" }); });
+    addingBroker = false;
+    if (!r) return;
+    delete S.ui.drafts["nb-name"];
+    S.ui.composer = null;
+    S.ui.focusNext = "f-broker-drive-" + id;
+    scheduleRender();
+  }
+  // Nouveau script : page d'un courtier = pour lui seul ; « Tous » = toute l'équipe.
+  // Code vide (la proposition s'affiche en grisé) ; un HK, un Body et un CTA vides, prêts à écrire.
+  function newScript() {
+    const b = ctxB();
+    if (!b && !isAll()) return;
+    const sid = rid("s"), n0 = nextFreeNum();
+    const blank = (kind, label, extra) => { const id = rid("i"); return Object.assign({ id, key: id, kind, label, text: "", rev: 0, ok: [], to: "all", not: [] }, extra || {}); };
+    const items = [blank("hook", "", { num: n0 }), blank("body", "Body"), blank("cta", "CTA")];
+    const r = mutate((n) => {
+      n.scripts.push({ id: sid, key: sid, code: "", env: "", title: "", to: b ? [b.id] : "all", not: [], raw: {}, items });
+    });
+    if (!r) return;
+    items.forEach((it) => { S.ui.fresh[it.id] = true; });
+    ensureOpen(sid);
+    S.ui.focusNext = "f-s-code-" + sid;
+    scheduleRender();
+  }
+  // Ajouter un HK, un Body ou un CTA : page d'un courtier = à lui seul ; « Tous » = à tous ceux qui ont le script.
+  function addItem(sid, group) {
+    const s = findScript(sid);
+    const b = ctxB();
+    if (!s || (!b && !isAll())) return;
+    let item;
+    if (group === "hook") item = { kind: "hook", num: nextFreeNum(), text: "", label: "" };
+    else {
+      const K = group === "cta" ? "CTA" : "Body";
+      const n = uniq(s.items.filter((x) => x.kind === group).map((x) => x.key)).length;
+      item = { kind: group, label: n ? K + " " + (n + 1) : K, text: "" };
+    }
+    const id = rid("i");
+    const r = mutate((n) => {
+      const sc = n.scripts.find((x) => x.id === sid);
+      if (!sc) return false;
+      const it = Object.assign({ rev: 0, ok: [], label: "" }, item, { id, key: id, to: b ? [b.id] : "all", not: [] });
+      let last = -1;
+      sc.items.forEach((x, i) => { if (x.kind === it.kind) last = i; });
+      if (last >= 0 || it.kind === "hook") sc.items.splice(last + 1, 0, it);
+      else sc.items.push(it);
+    });
+    if (!r) return;
+    S.ui.fresh[id] = true;
+    S.ui.focusNext = "f-i-text-" + id;
+    scheduleRender();
+  }
+  // Coller un script complet dans un hook vide : découpé en hooks (numéros proposés), body et CTA.
+  function splitPaste(iid, parsed) {
+    const f = findItem(iid);
+    if (!f) return;
+    const prev = clone(S.content);
+    const props = proposeNums(parsed, f.it.key);
+    let nh = 0;
+    const r = mutate((n) => {
+      const s = n.scripts.find((x) => x.id === f.s.id);
+      const i = s ? s.items.findIndex((x) => x.id === iid) : -1;
+      if (i < 0) return false;
+      const base = s.items[i];
+      const hooks = [], reads = [];
+      parsed.forEach((k, j) => {
+        const id = rid("i");
+        const it = { id, key: id, kind: k.kind, label: k.kind === "hook" ? "" : k.label, text: k.text, rev: 0, ok: [], to: clone(base.to), not: clone(base.not) || [] };
+        if (k.kind === "hook") { it.num = props[j]; hooks.push(it); nh++; } else reads.push(it);
+        S.ui.fresh[id] = true;
+      });
+      s.items.splice.apply(s.items, [i, 1].concat(hooks));
+      reads.forEach((x) => s.items.push(x));
+    });
+    if (r) showToast(nh + " hook" + (nh > 1 ? "s" : "") + " ajouté" + (nh > 1 ? "s" : "") + ".", undoAction(prev));
+  }
+
+  // Champs : enregistrés ~600 ms après la frappe, ou en quittant le champ.
+  const timers = {};
+  function saveField(key, final) {
+    clearTimeout(timers[key]);
+    const d = S.ui.dirty[key];
+    if (!d) return;
+    const f = d.field, id = d.id, raw = d.value, v = raw.trim();
+    const done = () => { if (S.ui.dirty[key] === d && (final || raw === v)) delete S.ui.dirty[key]; };
+    const revert = () => { if (final) { delete S.ui.dirty[key]; scheduleRender(); } };
+    const c = S.content;
+    if (!c) return;
+
+    // Lien raw collé dans la petite case : vide = rien ne change ; on referme la case en sortant.
+    if (f === "rawset") {
+      delete S.ui.dirty[key];
+      if (final) S.ui.rawEdit = null;
+      const p = id.split("~");
+      if (!v) { scheduleRender(); return; }
+      if (!safeUrl(v)) { if (final) showToast("Lien invalide (https://…)."); scheduleRender(); return; }
+      mutate((n) => { const s = n.scripts.find((x) => x.id === p[0]); if (!s) return false; s.raw[p[1]] = v; });
+      return;
+    }
+    if (f === "broker-name" || f === "broker-drive" || f === "common-drive" || f === "app-url" || f === "raw") {
+      let cur;
+      if (f === "broker-name" || f === "broker-drive") { const b = c.brokers.find((x) => x.id === id); if (!b) { delete S.ui.dirty[key]; return; } cur = f === "broker-name" ? b.name : b.drive; }
+      else if (f === "common-drive") cur = c.commonDrive;
+      else if (f === "app-url") cur = c.appUrl;
+      else { const p = id.split("~"); const s = c.scripts.find((x) => x.id === p[0]); if (!s) { delete S.ui.dirty[key]; return; } cur = s.raw[p[1]] || ""; }
+      if (v === cur) { done(); return; }
+      if (f === "broker-name" && !v) { revert(); return; }
+      if (f !== "broker-name" && v && !safeUrl(v)) { if (final) { showToast("Lien invalide (https://…)."); revert(); } return; }
+      mutate((n) => {
+        if (f === "broker-name") n.brokers.find((x) => x.id === id).name = v;
+        else if (f === "broker-drive") n.brokers.find((x) => x.id === id).drive = v;
+        else if (f === "common-drive") n.commonDrive = v;
+        else if (f === "app-url") n.appUrl = v;
+        else { const p = id.split("~"); const s = n.scripts.find((x) => x.id === p[0]); if (!s) return false; if (v) s.raw[p[1]] = v; else delete s.raw[p[1]]; }
+      });
+      done();
+      return;
+    }
+
+    if (f === "s-code" || f === "s-env" || f === "s-title") {
+      const s = findScript(id);
+      if (!s) { delete S.ui.dirty[key]; return; }
+      const prop = f === "s-code" ? "code" : f === "s-env" ? "env" : "title";
+      if (v === s[prop]) { done(); return; }
+      if (prop === "code" && !v) { revert(); return; }
+      // Le script change pour tous ceux qui l'ont.
+      mutate((n) => { const x = n.scripts.find((y) => y.id === id); if (!x) return false; x[prop] = v; });
+      done();
+      return;
+    }
+
+    if (f === "i-text" || f === "i-num" || f === "i-label") {
+      const fi = findItem(id);
+      if (!fi) { delete S.ui.dirty[key]; return; }
+      const { s, it } = fi;
+      let patch;
+      if (f === "i-text") {
+        if (v === it.text) { done(); return; }
+        if (!v && it.text) { revert(); return; }
+        patch = { text: v };
+      } else if (f === "i-num") {
+        const n0 = parseInt(v, 10);
+        if (!(n0 > 0)) { revert(); return; }
+        if (n0 === it.num) { done(); return; }
+        // Même numéro pour toutes les versions de l'élément.
+        mutate((n) => { const sc = n.scripts.find((x) => x.id === s.id); if (!sc) return false; sc.items.forEach((x) => { if (x.key === it.key) x.num = n0; }); });
+        done();
+        return;
+      } else {
+        if (!v) { revert(); return; }
+        if (v === it.label) { done(); return; }
+        patch = { label: v, kind: /^cta/i.test(v) ? "cta" : "body" };
+      }
+      // S'applique à tous ceux qui ont cette version.
+      const T = holders(s, it);
+      const before = {};
+      T.forEach((b) => { before[b] = versionFor(s, it.key, b); });
+      let targetId = id;
+      const r = mutate((n) => {
+        const sc = n.scripts.find((x) => x.id === s.id), x = sc && sc.items.find((y) => y.id === id);
+        if (!x) return false;
+        applyPatch(x, patch);
+      });
+      done();
+      if (!r) return;
+      if (f === "i-text" && it.kind === "hook") {
+        const after = findItem(targetId);
+        const lost = after ? T.filter((b) => before[b] && isDone(b, before[b]) && !isDone(b, after.it)) : [];
+        if (lost.length) {
+          const old = S.ui.bump && (S.ui.bump.iid === id || S.ui.bump.iid === targetId) ? S.ui.bump : null;
+          S.ui.bump = {
+            iid: targetId,
+            hashes: uniq((old ? old.hashes : []).concat(lost.map((b) => th(before[b].text)))),
+            rev: Math.min.apply(null, (old ? [old.rev] : []).concat(lost.map((b) => num(before[b].rev)))),
+            names: uniq((old ? old.names : []).concat(lost.map(brokerName)))
+          };
+        } else if (S.ui.bump && S.ui.bump.iid === id) S.ui.bump.iid = targetId;
+      }
+    }
+  }
+  function setFieldNow(f, id, value) {
+    const key = f + ":" + id;
+    S.ui.dirty[key] = { field: f, id, value: String(value) };
+    const el = document.getElementById("f-" + f + "-" + id);
+    if (el) el.value = String(value);
+    saveField(key, true);
+    scheduleRender();
+  }
+
+  /* ---------- Navigation ---------- */
+  function go(route) {
+    S.route = route;
+    try {
+      if (route) location.hash = route;
+      else history.replaceState(null, "", location.pathname + location.search);
+    } catch (_) { try { location.hash = route || ""; } catch (__) {} }
+    S.ui.linkShown = null;
+    S.ui.print = null;
+    S.ui.verFor = null;
+    S.ui.bump = null;
+    S.ui.envOpen = null;
+    S.ui.numEdit = null;
+    S.ui.rawEdit = null;
+    hideToast();
+    render();
+    scrollTop();
+  }
+  async function copyLink(bid) {
+    const url = brokerLink(bid);
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      S.ui.copied = bid;
+      scheduleRender();
+      setTimeout(() => { if (S.ui.copied === bid) { S.ui.copied = null; scheduleRender(); } }, 2000);
+    } catch (_) {
+      S.ui.linkShown = bid;
+      S.ui.focusNext = "f-link-" + bid;
+      render();
+      const el = document.getElementById("f-link-" + bid);
+      if (el) { try { el.select(); } catch (__) {} }
+    }
+  }
+  function toggleFold(id) {
+    const f = findItem(id);
+    const b = currentBroker();
+    if (!f || !b) return;
+    const done = f.it.kind === "hook" && isDone(b.id, f.it);
+    S.ui.fold[id] = !isOpen(f.it, done);
+    render();
+  }
+
+  root.addEventListener("click", (e) => {
+    const el = e.target.closest("[data-act]");
+    if (!el || !root.contains(el)) return;
+    const act = el.dataset.act, id = el.dataset.id;
+    if (act === "check" || act === "psel") return;
+    if (el.disabled || el.getAttribute("aria-disabled") === "true") return;
+    switch (act) {
+      case "fold":
+        if (String(id).indexOf("k:") === 0) { S.ui.fold[id] = el.getAttribute("aria-expanded") !== "true"; render(); }
+        else toggleFold(id);
+        break;
+      case "sfold": toggleBub(id); break;
+      case "env-toggle": {
+        const o = S.ui.envOpen;
+        setEnvOpen(o && o.sid === id && (o.all || !document.getElementById("f-s-env-" + id).value.trim()) ? null : { sid: id, all: true });
+        break;
+      }
+      case "env-pick": {
+        const a = document.activeElement;
+        if (a && a.classList.contains("cbopt")) S.ui.focusNext = "f-s-env-" + id;
+        setEnvOpen(null);
+        setFieldNow("s-env", id, el.dataset.v);
+        break;
+      }
+      case "home": go(""); break;
+      case "go": go(id); break;
+      case "panel": if (S.isOwner) { S.ui.panel = true; render(); scrollTop(); } break;
+      case "panel-close": S.ui.panel = false; S.ui.confirm = null; S.ui.composer = null; render(); scrollTop(); break;
+      case "copylink": copyLink(id); break;
+      case "view": viewMode = id === "texte" ? "texte" : "cartes"; writePref(VIEW_KEY, viewMode); render(); break;
+      case "print-open": S.ui.print = "pick"; S.ui.printOff = {}; S.ui.pickOpen = {}; hideToast(); render(); scrollTop(); break;
+      case "pick-fold": S.ui.pickOpen[id] = !S.ui.pickOpen[id]; render(); break;
+      case "print-go": printGo(); break;
+      case "print-close": S.ui.print = S.ui.print === "view" ? "pick" : null; render(); scrollTop(); break;
+      case "pdf": savePdf(); break;
+      case "spill": {
+        const sid = el.dataset.sid, bid = el.dataset.b, sc = findScript(sid);
+        if (!sc) break;
+        const prev = clone(S.content);
+        let res = null;
+        const r = mutate((n) => { res = opScriptPill(n, sid, bid); if (!res) return false; });
+        if (r && res.removed) showToast(scriptLabel(sc) + " retiré pour " + brokerName(bid) + ".", undoAction(prev));
+        break;
+      }
+      case "pill": {
+        const fi = findItem(el.dataset.iid), bid = el.dataset.b;
+        if (!fi) break;
+        const prev = clone(S.content);
+        let res = null;
+        const r = mutate((n) => { res = opPill(n, el.dataset.iid, bid); if (!res) return false; });
+        if (r && res.removed) showToast(itemLabel(fi.it) + " retiré pour " + brokerName(bid) + ".", undoAction(prev));
+        break;
+      }
+      case "ver": S.ui.verFor = S.ui.verFor === id ? null : id; render(); break;
+      case "ver-make": {
+        let nid = null;
+        const r = mutate((n) => { nid = opNewVersion(n, el.dataset.iid, el.dataset.b); if (!nid) return false; });
+        S.ui.verFor = null;
+        if (r && nid) S.ui.focusNext = "f-i-text-" + nid;
+        render();
+        break;
+      }
+      case "new-script": newScript(); break;
+      case "add-item": if (/^(hook|body|cta)$/.test(el.dataset.kind)) addItem(el.dataset.sid, el.dataset.kind); break;
+      case "item-trash": removeItem(id); break;
+      case "script-trash": removeScript(id); break;
+      case "num-edit": {
+        S.ui.numEdit = id;
+        S.ui.focusNext = "f-i-num-" + id;
+        render();
+        const inp = document.getElementById("f-i-num-" + id);
+        if (inp) { try { inp.select(); } catch (_) {} }
+        break;
+      }
+      case "raw-edit": S.ui.rawEdit = S.ui.rawEdit === id ? null : id; if (S.ui.rawEdit) { const b = currentBroker(); if (b) S.ui.focusNext = "f-rawset-" + id + "~" + b.id; } render(); break;
+      case "raw-clear": S.ui.rawEdit = null; setFieldNow("raw", id, ""); break;
+      case "info-tog": S.ui.infoOpen[id] = !S.ui.infoOpen[id]; if (S.ui.infoOpen[id]) S.ui.focusNext = "f-s-title-" + id; render(); break;
+      case "setnum": S.ui.numEdit = null; setFieldNow("i-num", id, el.dataset.n); break;
+      case "setfield": setFieldNow(el.dataset.f, id, el.dataset.v); break;
+      case "keep-checks": {
+        const bp = S.ui.bump;
+        S.ui.bump = null;
+        if (bp) {
+          mutate((n) => {
+            for (const sc of n.scripts) {
+              const k = sc.items.find((x) => x.id === bp.iid);
+              if (k) { k.ok = uniq((k.ok || []).concat(bp.hashes)); k.rev = Math.min(num(k.rev), bp.rev); return; }
+            }
+            return false;
+          });
+        }
+        scheduleRender();
+        break;
+      }
+      case "broker-up": case "broker-down":
+        mutate((n) => move(n.brokers, n.brokers.findIndex((b) => b.id === id), act === "broker-up" ? -1 : 1)); break;
+      case "broker-trash": removeBroker(id); break;
+      case "addbroker-open": S.ui.composer = { type: "broker" }; S.ui.focusNext = "d-nb-name"; render(); break;
+      case "restore": restoreItem(S.trash.find((t) => t.tid === id)); break;
+      case "purge": purge(id); break;
+    }
+  });
+
+  root.addEventListener("change", (e) => {
+    const t = e.target;
+    if (t.matches && t.matches('input[type="checkbox"][data-act="psel"]')) {
+      if (t.checked) delete S.ui.printOff[t.dataset.id]; else S.ui.printOff[t.dataset.id] = true;
+      render();
+      return;
+    }
+    if (!t.matches || !t.matches('input[type="checkbox"][data-act="check"]')) return;
+    const b = currentBroker();
+    const f = findItem(t.dataset.iid);
+    if (!b || !f) return;
+    setCheck(b.id, f.s, f.it, t.checked);
+  });
+
+  let sugTimer = 0;
+  root.addEventListener("input", (e) => {
+    const t = e.target;
+    if (t.matches && t.matches("textarea.auto")) autosize(t);
+    if (t.matches && t.matches("input.tin")) fitInput(t);
+    if (t.dataset && t.dataset.draft) { S.ui.drafts[t.dataset.draft] = t.value; return; }
+    if (t.dataset && t.dataset.field) {
+      const f = t.dataset.field, id = t.dataset.id, key = f + ":" + id;
+      S.ui.dirty[key] = { field: f, id, value: t.value };
+      clearTimeout(timers[key]);
+      // Numéro et lien raw : enregistrés à Entrée ou en sortant du champ.
+      if (f !== "i-num" && f !== "rawset") timers[key] = setTimeout(() => saveField(key, false), 600);
+      if (f === "s-env") { setEnvOpen({ sid: id, all: false }); const box = document.getElementById("cb-" + id); if (box) box.classList.toggle("noenv", !t.value); }
+      if (f === "s-code") {
+        const g = document.getElementById("gh-code-" + id), ghost = codeGhost(id, t.value);
+        if (g) g.textContent = ghost;
+        t.placeholder = ghost ? "" : "code";
+        fitInput(t);
+      }
+      if (f === "i-num") {
+        const g = document.getElementById("gh-num-" + id), fi = findItem(id);
+        if (g && fi) g.textContent = numGhost(numSugg(fi.it, t.value), t.value);
+      }
+      if (f === "i-text") {
+        clearTimeout(sugTimer);
+        sugTimer = setTimeout(() => {
+          const el = document.getElementById("hh-" + id), fi = findItem(id);
+          if (el && fi) el.innerHTML = hintHtml(fi.it);
+        }, 150);
+      }
+    }
+  });
+
+  root.addEventListener("paste", (e) => {
+    const t = e.target;
+    if (!t.dataset || t.dataset.field !== "i-text" || t.value.trim()) return;
+    const f = findItem(t.dataset.id);
+    if (!f || f.it.kind !== "hook") return;
+    const txt = (e.clipboardData && e.clipboardData.getData("text")) || "";
+    const parsed = parseScript(txt);
+    if (parsed.length < 2) return;
+    e.preventDefault();
+    delete S.ui.dirty["i-text:" + t.dataset.id];
+    clearTimeout(timers["i-text:" + t.dataset.id]);
+    splitPaste(t.dataset.id, parsed);
+  });
+
+  // Toucher une proposition ou la liste ne doit pas sortir du champ (au doigt comme à la souris).
+  root.addEventListener("mousedown", (e) => {
+    if (e.target.closest && e.target.closest(".cbopt, .cbarrow, .sug, .hkhint")) e.preventDefault();
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (S.ui.envOpen && !(e.target.closest && e.target.closest(".combo"))) setEnvOpen(null);
+  }, true);
+
+  root.addEventListener("focusout", (e) => {
+    if (rendering) return;
+    const t = e.target;
+    if (!t.dataset) return;
+    if (S.ui.envOpen && t.closest && t.closest(".combo")) {
+      const to = e.relatedTarget;
+      if (!(to && to.closest && to.closest(".combo"))) setEnvOpen(null);
+    }
+    if (t.dataset.draft === "nb-name") { setTimeout(addBroker, 0); return; }
+    if (!t.dataset.field) return;
+    const key = t.dataset.field + ":" + t.dataset.id;
+    if (S.ui.dirty[key]) saveField(key, true);
+    if (t.dataset.field === "i-num" && S.ui.numEdit === t.dataset.id) { S.ui.numEdit = null; scheduleRender(); }
+    if (t.dataset.field === "rawset" && S.ui.rawEdit) { S.ui.rawEdit = null; scheduleRender(); }
+  });
+
+  root.addEventListener("keydown", (e) => {
+    const t = e.target;
+    if (!t.dataset) return;
+    if (t.dataset.act === "fold" && t.tagName !== "BUTTON" && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggleFold(t.dataset.id); return; }
+    // Poignée : ↑ ↓ au clavier (secours du glisser-déposer).
+    if (t.dataset.grip && (e.key === "ArrowUp" || e.key === "ArrowDown")) { e.preventDefault(); keyMove(t, e.key === "ArrowUp" ? -1 : 1); return; }
+    const f = t.dataset.field;
+    // Code : Entrée ou Tab applique la proposition en grisé.
+    if (f === "s-code" && (e.key === "Enter" || e.key === "Tab")) {
+      const sug = codeGhost(t.dataset.id, t.value) ? codeSuggestion(t.dataset.id, t.value) : "";
+      if (sug) { if (e.key === "Enter") e.preventDefault(); setFieldNow("s-code", t.dataset.id, sug); if (e.key === "Enter") t.blur(); return; }
+    }
+    // Numéro HK : Entrée applique la proposition (sinon le chiffre tapé) ; Échap annule.
+    if (f === "i-num") {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const fi = findItem(t.dataset.id);
+        const g = fi ? numSugg(fi.it, t.value) : null;
+        S.ui.numEdit = null;
+        if (g != null && numGhost(g, t.value)) setFieldNow("i-num", t.dataset.id, String(g));
+        else { saveField("i-num:" + t.dataset.id, true); render(); }
+        return;
+      }
+      if (e.key === "Escape") { e.preventDefault(); delete S.ui.dirty["i-num:" + t.dataset.id]; S.ui.numEdit = null; render(); return; }
+    }
+    if (f === "rawset" && e.key === "Escape") { e.preventDefault(); delete S.ui.dirty["rawset:" + t.dataset.id]; S.ui.rawEdit = null; render(); return; }
+    // Liste des environnements au clavier : ↓ ↑ pour parcourir, Échap pour fermer.
+    const envIn = f === "s-env";
+    if (envIn || t.classList.contains("cbopt")) {
+      const sid = t.dataset.id;
+      const opts = () => Array.from(document.querySelectorAll("#cbl-" + CSS.escape(sid) + " .cbopt"));
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (envIn && !(S.ui.envOpen && S.ui.envOpen.sid === sid)) setEnvOpen({ sid, all: true });
+        const o = opts(), i = o.indexOf(t);
+        const n = e.key === "ArrowDown" ? (i < 0 ? 0 : Math.min(i + 1, o.length - 1)) : i - 1;
+        if (n >= 0 && o[n]) o[n].focus();
+        else if (!envIn) document.getElementById("f-s-env-" + sid).focus();
+        return;
+      }
+      if (e.key === "Escape" && S.ui.envOpen) {
+        e.preventDefault();
+        setEnvOpen(null);
+        if (!envIn) document.getElementById("f-s-env-" + sid).focus();
+        return;
+      }
+      if (envIn && e.key === "Enter") setEnvOpen(null);
+    }
+    if (t.tagName === "INPUT" && e.key === "Enter") {
+      if (f) { e.preventDefault(); t.blur(); return; }
+      if (t.dataset.draft === "nb-name") { e.preventDefault(); addBroker(); }
+    } else if (e.key === "Escape" && f) {
+      const key = f + ":" + t.dataset.id;
+      clearTimeout(timers[key]);
+      delete S.ui.dirty[key];
+      render();
+    }
+  });
+
+  // Pastilles : le nom complet au survol (title) ou par appui long au doigt (sans changer la pastille).
+  const tipEl = document.getElementById("tip");
+  let tipT = 0, tipEaten = false;
+  root.addEventListener("pointerdown", (e) => {
+    const p = e.target.closest && e.target.closest(".bp");
+    if (!p || e.pointerType === "mouse") return;
+    clearTimeout(tipT);
+    tipT = setTimeout(() => {
+      tipEaten = true;
+      const r = p.getBoundingClientRect();
+      tipEl.textContent = p.dataset.name || "";
+      tipEl.hidden = false;
+      tipEl.style.left = Math.max(8, Math.min(window.innerWidth - 160, r.left)) + "px";
+      tipEl.style.top = Math.max(8, r.top - 40) + "px";
+      setTimeout(() => { tipEl.hidden = true; }, 1500);
+    }, 450);
+  });
+  ["pointerup", "pointercancel", "pointermove"].forEach((t) => window.addEventListener(t, (e) => {
+    if (t === "pointermove" && !(e.pointerType !== "mouse" && Math.abs(e.movementY || 0) + Math.abs(e.movementX || 0) > 6)) return;
+    clearTimeout(tipT);
+  }, true));
+  root.addEventListener("click", (e) => { if (tipEaten && e.target.closest && e.target.closest(".bp")) { tipEaten = false; e.stopPropagation(); e.preventDefault(); } }, true);
+  root.addEventListener("contextmenu", (e) => { if (e.target.closest && e.target.closest(".bp")) e.preventDefault(); });
+
+  /* ---------- Glisser-déposer (propriétaire) : bulles de scripts et éléments d'un script ----------
+     Souris : on tire la poignée. Doigt : appui long (~0,3 s) sur la poignée, sinon la page défile.
+     L'élément se soulève, un trait montre où il ira ; on enregistre une seule fois au relâchement. */
+  root.addEventListener("pointerdown", (e) => {
+    const g = e.target.closest && e.target.closest(".grip");
+    if (!g || !root.contains(g) || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const el = g.closest("[data-dnd-el]"), box = el && el.parentElement && el.parentElement.closest("[data-dnd]");
+    if (!el || !box || box !== el.parentElement) return;
+    const touch = e.pointerType !== "mouse";
+    DND.st = { g, el, box, pid: e.pointerId, x0: e.clientX, y0: e.clientY, sy0: window.scrollY, on: false, touch, t: 0, y: e.clientY, before: undefined };
+    if (touch) DND.st.t = setTimeout(startDrag, 320);
+    else e.preventDefault();
+  });
+  root.addEventListener("contextmenu", (e) => { if (e.target.closest && e.target.closest(".grip")) e.preventDefault(); });
+  window.addEventListener("pointermove", (e) => {
+    const d = DND.st;
+    if (!d || e.pointerId !== d.pid) return;
+    d.y = e.clientY;
+    if (!d.on) {
+      const far = Math.abs(e.clientY - d.y0) > 8 || Math.abs(e.clientX - d.x0) > 8;
+      if (d.touch) { if (far) cancelDrag(); return; }
+      if (Math.abs(e.clientY - d.y0) > 4) startDrag(); else return;
+    }
+    moveDrag();
+  }, true);
+  window.addEventListener("pointerup", (e) => { if (DND.st && e.pointerId === DND.st.pid) endDrag(true); }, true);
+  window.addEventListener("pointercancel", (e) => { if (DND.st && e.pointerId === DND.st.pid) endDrag(false); }, true);
+  document.addEventListener("touchmove", (e) => { if (DND.st && DND.st.on && e.cancelable) e.preventDefault(); }, { passive: false });
+  window.addEventListener("scroll", () => { if (DND.st && DND.st.on) moveDrag(true); }, { passive: true });
+
+  function cancelDrag() { const d = DND.st; if (d) clearTimeout(d.t); DND.st = null; }
+  function startDrag() {
+    const d = DND.st;
+    if (!d || d.on) return;
+    clearTimeout(d.t);
+    d.on = true;
+    try { d.g.setPointerCapture(d.pid); } catch (_) {}
+    d.sibs = Array.from(d.box.children).filter((x) => x.hasAttribute("data-dnd-el"));
+    d.el.classList.add("lifted");
+    d.line = document.createElement("div");
+    d.line.className = "dropline";
+    d.box.appendChild(d.line);
+    document.body.classList.add("dnd-on");
+    if (d.touch && navigator.vibrate) { try { navigator.vibrate(12); } catch (_) {} }
+    moveDrag();
+  }
+  function moveDrag(fromScroll) {
+    const d = DND.st;
+    if (!d || !d.on) return;
+    d.el.style.transform = "translateY(" + (d.y - d.y0 + window.scrollY - d.sy0) + "px)";
+    const others = d.sibs.filter((x) => x !== d.el);
+    let before = null;
+    for (const x of others) { const r = x.getBoundingClientRect(); if (d.y < r.top + r.height / 2) { before = x; break; } }
+    d.before = before;
+    const br = d.box.getBoundingClientRect();
+    const last = others[others.length - 1];
+    const top = before ? before.getBoundingClientRect().top - br.top - 6 : last ? last.getBoundingClientRect().bottom - br.top + 3 : 0;
+    d.line.style.top = top + "px";
+    // Près du bord, la page défile (seulement quand le doigt ou la souris bouge).
+    const vh = window.innerHeight || 800;
+    if (!fromScroll) { if (d.y < 70) window.scrollBy(0, -14); else if (d.y > vh - 70) window.scrollBy(0, 14); }
+  }
+  function endDrag(commit) {
+    const d = DND.st;
+    DND.st = null;
+    if (!d) return;
+    clearTimeout(d.t);
+    if (!d.on) return;
+    d.el.classList.remove("lifted");
+    d.el.style.transform = "";
+    if (d.line) d.line.remove();
+    document.body.classList.remove("dnd-on");
+    if (commit && d.before !== undefined) {
+      const i = d.sibs.indexOf(d.el);
+      if (d.before !== (d.sibs[i + 1] || null)) {
+        const others = d.sibs.filter((x) => x !== d.el);
+        const prevEl = d.before ? others[others.indexOf(d.before) - 1] : others[others.length - 1];
+        applyMove(d.box, d.el.dataset.key, d.before ? d.before.dataset.key : null, prevEl ? prevEl.dataset.key : null);
+      }
+    }
+    setTimeout(payDebt, 0);
+  }
+  // Clavier : déplace d'une place, même logique et même enregistrement que le glisser-déposer.
+  function keyMove(g, dir) {
+    const el = g.closest("[data-dnd-el]"), box = el && el.parentElement;
+    if (!el || !box || !box.hasAttribute("data-dnd")) return;
+    const sibs = Array.from(box.children).filter((x) => x.hasAttribute("data-dnd-el"));
+    const i = sibs.indexOf(el), j = i + dir;
+    if (j < 0 || j >= sibs.length) return;
+    const before = dir < 0 ? sibs[j] : sibs[j + 1] || null;
+    const after = dir < 0 ? sibs[j - 1] || null : sibs[j];
+    S.ui.focusNext = g.id;
+    applyMove(box, el.dataset.key, before ? before.dataset.key : null, after ? after.dataset.key : null);
+  }
+  function applyMove(box, key, beforeKey, afterKey) {
+    if (box.dataset.dnd === "item") mutate((n) => { if (!opMoveItem(n, box.dataset.sid, key, beforeKey, afterKey)) return false; });
+    else if (box.dataset.dnd === "script") mutate((n) => { if (!opMoveScript(n, key, beforeKey, afterKey)) return false; });
+  }
+
+  window.addEventListener("hashchange", () => {
+    const r = readHash();
+    if (r !== S.route) { S.route = r; S.ui.print = null; S.ui.verFor = null; S.ui.panel = false; S.ui.numEdit = null; S.ui.rawEdit = null; render(); }
+  });
+  setInterval(() => {
+    if (S.phase !== "ready" || document.visibilityState === "hidden") return;
+    const a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA)$/.test(a.tagName)) return;
+    scheduleRender();
+  }, 60000);
+
+  /* ---------- Démarrage ---------- */
+  function onSubError(err, name, resub, retried) {
+    const c = codeOf(err);
+    if (TERMINAL.indexOf(c) >= 0) { S.phase = "revoked"; scheduleRender(); return; }
+    if (c === "unavailable" && !retried) { setTimeout(() => resub(true), 1200 + Math.random() * 1500); return; }
+    if (name === "content") S.contentLoaded = true;
+    if (name === "progress") S.progressLoaded = true;
+    showToast("Mise à jour interrompue. Recharge la page.", null, 6000);
+    scheduleRender();
+  }
+  function subContent(retried) {
+    try {
+      S.db.doc("content/main").onSnapshot((snap) => {
+        const first = !S.contentLoaded;
+        S.contentLoaded = true;
+        if (cw.writing || cw.next) { if (first) scheduleRender(); return; }
+        const data = snap && snap.exists ? norm(clone(snap.data())) : null;
+        const j = canon(data);
+        if (!first && j === S.contentJson) return;
+        S.contentJson = j;
+        S.content = data;
+        scheduleRender();
+      }, (err) => onSubError(err, "content", subContent, retried));
+    } catch (err) { onSubError(err, "content", subContent, retried); }
+  }
+  function subProgress(retried) {
+    try {
+      S.db.collection("progress").onSnapshot((qs) => {
+        const p = {};
+        for (const d of qs.docs) if (d.exists) p[d.id] = d.data();
+        S.progress = p;
+        S.progressLoaded = true;
+        for (const k of Object.keys(S.pending)) if (S.pending[k].settled) delete S.pending[k];
+        scheduleRender();
+      }, (err) => onSubError(err, "progress", subProgress, retried));
+    } catch (err) { onSubError(err, "progress", subProgress, retried); }
+  }
+  function subTrash(retried) {
+    try {
+      S.db.collection("trash").onSnapshot((qs) => {
+        S.trash = qs.docs.filter((d) => d.exists)
+          .map((d) => Object.assign({ tid: d.id }, d.data()))
+          .sort((a, b) => num(b.deletedAt) - num(a.deletedAt));
+        scheduleRender();
+      }, (err) => onSubError(err, "trash", subTrash, retried));
+    } catch (err) { onSubError(err, "trash", subTrash, retried); }
+  }
+
+  async function boot() {
+    const W = window.claude;
+    if (!W || typeof W.use !== "function") { S.phase = "nodb"; render(); return; }
+    W.use("downloads").then((d) => { S.dl = d || null; }, () => { S.dl = null; })
+      .then(() => { S.dlKnown = true; scheduleRender(); });
+    let db = null, user = null;
+    try {
+      [db, user] = await Promise.all([
+        W.use("db").catch(() => null),
+        W.use("user").catch(() => null)
+      ]);
+    } catch (_) { db = null; }
+    if (!db) { S.phase = "nodb"; render(); return; }
+    S.db = db; S.user = user;
+    let owner = false, can = null;
+    if (user) {
+      try { [owner, can] = await Promise.all([user.isOwner(), user.can("data.write")]); } catch (_) {}
+    }
+    S.isOwner = !!owner;
+    if (can === false && !S.isOwner) S.readOnly = true;
+    S.phase = "ready";
+    subContent();
+    subProgress();
+    if (S.isOwner) subTrash();
+    render();
+  }
+  boot();
+})();
+</script>
+
+</body></html>
