@@ -14,6 +14,8 @@ services:
       - DOMAIN=${DOMAIN}
       - ADMIN_TOKEN=${ADMIN_TOKEN}
       - TEAM_PATH=${TEAM_PATH:-equipe}
+      - DRIVE_SCRIPT_URL=${DRIVE_SCRIPT_URL:-}
+      - DRIVE_SECRET=${DRIVE_SECRET:-}
     networks:
       - proxy
     labels:

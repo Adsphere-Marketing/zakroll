@@ -11,6 +11,6 @@ CHANGED=$(git diff --name-only "$LOCAL" "$REMOTE")
 git reset -q --hard origin/main
 echo "$(date -Is) mise à jour $LOCAL -> $REMOTE"
 echo "$CHANGED" | sed 's/^/  /'
-if echo "$CHANGED" | grep -qE '^(server\.js|shim\.js|docker-compose\.yml)$'; then
+if echo "$CHANGED" | grep -qE '^(server\.js|shim\.js|drive\.js|docker-compose\.yml)$'; then
   docker compose up -d --force-recreate >/dev/null 2>&1 && echo "  serveur redémarré"
 fi

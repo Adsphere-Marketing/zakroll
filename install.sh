@@ -86,6 +86,8 @@ if [ -f "$DIR/.env" ] && grep -q '^ADMIN_TOKEN=' "$DIR/.env"; then
 else
   ADMIN_TOKEN=$(od -An -tx1 -N12 /dev/urandom | tr -d ' \n')
 fi
+DRIVE_SCRIPT_URL=$( [ -f "$DIR/.env" ] && grep '^DRIVE_SCRIPT_URL=' "$DIR/.env" | cut -d= -f2- || true)
+DRIVE_SECRET=$( [ -f "$DIR/.env" ] && grep '^DRIVE_SECRET=' "$DIR/.env" | cut -d= -f2- || true)
 cat >"$DIR/.env" <<EOF
 DOMAIN=$DOMAIN
 ADMIN_TOKEN=$ADMIN_TOKEN
@@ -94,6 +96,8 @@ TRAEFIK_NETWORK=$NET
 ENTRYPOINT=$EP
 ENTRYPOINT_HTTP=$EP_HTTP
 CERT_RESOLVER=$CR
+DRIVE_SCRIPT_URL=$DRIVE_SCRIPT_URL
+DRIVE_SECRET=$DRIVE_SECRET
 EOF
 chmod 600 "$DIR/.env"
 if [ -n "${SEED_B64:-}" ] && [ ! -f "$DIR/data/db.json" ]; then

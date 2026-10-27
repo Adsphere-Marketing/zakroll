@@ -12,6 +12,9 @@
  *   GET    /api/events                  flux SSE des changements
  *   PUT    /api/doc/:collection/:id     { mode: "set" | "update", data }
  *   DELETE /api/doc/:collection/:id
+ *   GET    /api/drive/status            (admin) état des dossiers Drive automatiques
+ *   POST   /api/drive/sync              (admin) forcer une passe
+ *   POST   /api/drive/ping              (admin) tester le script Google
  */
 const http = require("http");
 const fs = require("fs");
@@ -85,6 +88,26 @@ function merge(base, patch) {
   });
   return out;
 }
+
+/* ---------- écriture interne (même chemin que l'API : version, sauvegarde, diffusion) ---------- */
+function putDoc(collection, id, next) {
+  const cur = db[collection][id];
+  const doc = { data: next, version: (cur ? cur.version : 0) + 1, updatedAt: Date.now() };
+  db[collection][id] = doc;
+  saveSoon();
+  broadcast(collection, id, doc);
+  return doc;
+}
+const contentData = () => (db.content.main ? db.content.main.data : null);
+function patchContent(fn) {
+  const cur = contentData();
+  if (!cur) return false;
+  const copy = JSON.parse(JSON.stringify(cur));
+  if (!fn(copy)) return false;
+  putDoc("content", "main", copy);
+  return true;
+}
+let drive = null; // démarré après le chargement de la base (voir le bas du fichier)
 
 /* ---------- cookies signés ---------- */
 const KEY = crypto.createHmac("sha256", ADMIN_TOKEN).update("zakroll-cookie-key").digest();
@@ -226,6 +249,15 @@ const server = http.createServer(async (req, res) => {
         req.on("close", () => clients.delete(c));
         return;
       }
+      if (p === "/api/drive/status" || p === "/api/drive/sync" || p === "/api/drive/ping") {
+        if (role !== "admin") { send(res, 403, { code: "invalid_argument", message: "Admin seulement." }); return; }
+        if (req.method === "GET" && p === "/api/drive/status") { send(res, 200, drive.status()); return; }
+        if (req.method === "POST" && p === "/api/drive/sync") { await drive.syncNow(); send(res, 200, drive.status()); return; }
+        if (req.method === "POST" && p === "/api/drive/ping") {
+          try { send(res, 200, await drive.ping()); } catch (e) { send(res, 502, { ok: false, error: String(e && e.message || e) }); }
+          return;
+        }
+      }
       const m = p.match(/^\/api\/doc\/([^/]+)\/([^/]+)$/);
       if (m) {
         const collection = m[1], id = decodeURIComponent(m[2]);
@@ -253,10 +285,8 @@ const server = http.createServer(async (req, res) => {
             if (!cur) { send(res, 404, { code: "invalid_argument", message: "Document absent : update impossible." }); return; }
             next = merge(cur.data, data);
           } else next = data;
-          const doc = { data: next, version: (cur ? cur.version : 0) + 1, updatedAt: Date.now() };
-          db[collection][id] = doc;
-          saveSoon();
-          broadcast(collection, id, doc);
+          const doc = putDoc(collection, id, next);
+          if (collection === "content" && id === "main") drive.onContentWrite();
           send(res, 200, { ok: true, version: doc.version }); return;
         }
       }
@@ -271,6 +301,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 loadDb();
+drive = require("./drive.js")({ getContent: contentData, patchContent, log: (m) => console.log(m) });
 server.listen(PORT, "0.0.0.0", () => {
   console.log("Zak Roll en marche sur le port " + PORT + (DOMAIN ? " pour " + DOMAIN : ""));
   console.log("Courtiers : /" + TEAM_PATH + "   Admin : /admin-<token>");
