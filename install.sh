@@ -69,7 +69,7 @@ fi
 [ -n "$NET" ] || die "Impossible de trouver le réseau Docker de Traefik."
 if [ -z "$CR" ]; then
   echo "  Résolveur de certificats introuvable. Sortie de diagnostic :"
-  docker inspect "$TRAEFIK" | head -200
+  docker inspect "$TRAEFIK" | head -200 || true
   die "Colle cette sortie dans la conversation pour que je règle le résolveur à la main."
 fi
 echo "  réseau=$NET  entrée=$EP  entrée-http=$EP_HTTP  résolveur=$CR"
@@ -79,7 +79,7 @@ if [ -f "$DIR/.env" ] && grep -q '^ADMIN_TOKEN=' "$DIR/.env"; then
   ADMIN_TOKEN=$(grep '^ADMIN_TOKEN=' "$DIR/.env" | cut -d= -f2-)
   echo "  jeton admin existant conservé"
 else
-  ADMIN_TOKEN=$(tr -dc 'a-z0-9' </dev/urandom | head -c 24)
+  ADMIN_TOKEN=$(od -An -tx1 -N12 /dev/urandom | tr -d ' \n')
 fi
 cat >"$DIR/.env" <<EOF
 DOMAIN=$DOMAIN
